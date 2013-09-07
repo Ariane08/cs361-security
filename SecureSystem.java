@@ -1,4 +1,4 @@
-//Secure System
+//Secure System by Olga and Shaelyn
 import java.util.*;
 import java.io.*;
 
@@ -9,22 +9,37 @@ class InstructionObject {
     public static String objName;
     public static int value; 
 
+    public static void assignObjElements(String s){
+        String delim = " ";
+        String[] tokens = s.split(delim);
+        //Print tokens of parsed string
+        //System.out.println(Arrays.toString(tokens));
+
+        type = tokens[0];
+        subjName = tokens[1];
+        objName = tokens[2];
+        //Print object variables
+        System.out.println("type = " + type);
+        System.out.println("subjName = " + subjName);
+        System.out.println("objName = " + objName);
+        
+        if (type.equals("write")){
+            value = Integer.parseInt(tokens[3]);
+            //Print object variables
+            System.out.println("value = " + value);
+        }
+
+    }
+
     public static void parseInput(Scanner in) throws IOException{
         String s;
         while(in.hasNext()){
             s = in.nextLine();
-            //Print lines of input list
+            //Print line of input
             System.out.println(s);
-            String delim = " ";
-            String[] tokens = s.split(delim);
-            //Print tokens of parsed string
-            System.out.println(Arrays.toString(tokens));
-            type = tokens[0];
-            subjName = tokens[1];
-            objName = tokens[2];
-            // if (type.toLowercase() == "write"){
-            //     value = tokens[3];
-            // }
+
+            assignObjElements(s);
+
         }
 
     }
@@ -55,6 +70,6 @@ class SecureSystem {
     	// obj.objFunction();
     	// ObjectManager mObj = new ObjectManager();
     	// mObj.objManFunction();
-        System.out.println("SecureSystem!");
+        System.out.println("\nSecureSystem!\n");
     }
 }
