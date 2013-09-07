@@ -53,15 +53,67 @@ class InstructionObject {
     }
 }
 
+class BadInstruction {
+    public static void badInstructionFunction() {
+        System.out.println("BadInstruction!");
+    }
+}
+
+class Subject {
+    public static String name;
+    //temp is the value the subject most recently read
+    public static int temp; 
+
+    public static void makeNewSubject() {
+        //get and set name
+        name = "harry";
+        //temp is initially zero
+        temp = 0;
+    }
+
+    public static void read() {
+        //temp is updated to the value of the obj
+        //should get this value by communicating with the ObjectManager
+        temp = 0;
+    }
+
+    public static void write() {
+        //subject updates to the value of the obj
+        //does this by communicating with the ObjectManager
+        temp = 0;
+    }
+
+    public static void subjFunction() {
+        System.out.println("Referenced a subject!");
+    }
+}
+
 class SecureObject {
+    public static String name;
+    public static int currentValue; 
+
+    public static void makeNewObject() {
+        //currentValue is initially zero
+        currentValue = 0;
+    }
+
     public static void objFunction() {
         System.out.println("Referenced an object!");
     }
 }
 
 class ObjectManager {
+
+    //Handle the read/write requests of the subject
+
     public static void objManFunction() {
         System.out.println("ObjectManager!");
+    }
+}
+
+class ReferenceMonitor {
+    public static void refMonFunction() {
+        System.out.println("ReferenceMonitor!");
     }
 }
 
@@ -69,7 +121,7 @@ class SecureSystem {
     public static void main(String[] args) throws IOException{
     	Scanner inFile = new Scanner(new FileReader("instructionList.txt"));
 
-
+        //Instructions are parsed from the list
     	InstructionObject instrObj = new InstructionObject();
     	instrObj.getNewInstruction(inFile);
 
