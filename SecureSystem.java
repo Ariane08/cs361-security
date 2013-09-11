@@ -13,41 +13,44 @@ class InstructionObject {
     public static void assignObjElements(String s){
         String delim = " ";
         String[] tokens = s.split(delim);
-        //Print tokens of parsed string
-        //System.out.println(Arrays.toString(tokens));
 
-        type = tokens[0];
-        type = type.toLowerCase();
-        subjName = tokens[1];
-        objName = tokens[2];
-        //Print object variables
-        System.out.println("type = " + type);
-        System.out.println("subjName = " + subjName);
-        System.out.println("objName = " + objName);
-        
-        if (type.equals("write")){
-            value = Integer.parseInt(tokens[3]);
-            //Print object variables
-            System.out.println("value = " + value);
+        if (tokens.length == 3 || tokens.length == 4){
+            //Check first ele of instruction
+            type = tokens[0].toUpperCase();
+            if (!type.equals("WRITE") && !type.equals("READ")){
+                type = "BAD";
+            }
+            System.out.println("type = " + type);
+
+            //Check second ele of instruction
+            subjName = tokens[1];
+            //known subject of the secure system?
+            System.out.println("subjName = " + subjName);
+
+            //Check third ele of instruction
+            objName = tokens[2];
+            //known object of the secure system?       
+            System.out.println("objName = " + objName);
+        }
+        else {
+            type = "BAD";
+            System.out.println("type2 = " + type);
         }
 
-    }
-
-    public static void getNewInstruction(Scanner in) throws IOException{
-        String s;
-        while(in.hasNext()){
-            s = in.nextLine();
-            //Print line of input
-            System.out.println(s);
-
-            assignObjElements(s);
-
-            //Print end of instruction object exclaimation
-            instrFunction();
-
+        //If WRITE, Check fourth ele of instruction
+        if (type.equals("WRITE")){
+            if (tokens.length == 4){
+                value = Integer.parseInt(tokens[3]);
+                //Print object variables
+                System.out.println("value = " + value);
+            }
+            else {
+                type = "BAD";
+                System.out.println("type2 = " + type);
+            }
         }
-
     }
+
     public static void instrFunction() {
         System.out.println("InstructionObject!\n");
     }
@@ -59,16 +62,29 @@ class BadInstruction {
     }
 }
 
+class SecurityLevel{
+    // static int level;
+    // public final static void LOW(){
+    //     level = 0;
+    // }
+    // public final static void HIGH(){
+    //     level = 1;
+    // }
+    //final static SecurityLevel LOW = 0;
+}
+
 class Subject {
     public static String name;
     //temp is the value the subject most recently read
-    public static int temp; 
+    public static int temp;
+    public static int level; // NEED TO CHANGE INT!!!
 
-    public static void makeNewSubject() {
+    public static void createSubject(String inName, int inLevel) {
         //get and set name
-        name = "harry";
+        name = inName;
         //temp is initially zero
         temp = 0;
+        level = inLevel;
     }
 
     public static void read() {
@@ -90,11 +106,14 @@ class Subject {
 
 class SecureObject {
     public static String name;
-    public static int currentValue; 
+    public static int currentValue;
+    public static int level; // NEED TO CHANGE INT!!! 
 
-    public static void makeNewObject() {
+    public static void createNewObject(String inName, int inLevel) {
         //currentValue is initially zero
         currentValue = 0;
+        name = inName;
+        level = inLevel;
     }
 
     public static void objFunction() {
@@ -103,28 +122,64 @@ class SecureObject {
 }
 
 class ObjectManager {
-
-    //Handle the read/write requests of the subject
-
+    // Perform requests of the ReferenceMonitor
     public static void objManFunction() {
         System.out.println("ObjectManager!");
     }
 }
 
 class ReferenceMonitor {
+
+    //Handle the read/write requests of the subject
+    // 
     public static void refMonFunction() {
         System.out.println("ReferenceMonitor!");
     }
 }
 
 class SecureSystem {
+
+
+
     public static void main(String[] args) throws IOException{
     	Scanner inFile = new Scanner(new FileReader("instructionList.txt"));
 
+        // SecurityLevel low  = SecurityLevel.LOW;
+        // SecurityLevel high = SecurityLevel.HIGH;
+
+        int low = 0;
+        int high = 1;
+
+        Subject lyle = new Subject();
+        lyle.createSubject("Lyle", low);
+        System.out.println(lyle.name + " " + lyle.level + "\n");
+
+        Subject hal = new Subject();
+        hal.createSubject("Hal", high);
+        System.out.println(hal.name + " " + hal.level + "\n");
+
+        SecureObject lobj = new SecureObject();
+        lobj.createNewObject("Lobj", low);
+        System.out.println(lobj.name + " " + lobj.level + "\n");
+
+        SecureObject hobj = new SecureObject();
+        hobj.createNewObject("Hobj", high);
+        System.out.println(hobj.name + " " + hobj.level + "\n");
+
         //Instructions are parsed from the list
-    	InstructionObject instrObj = new InstructionObject();
-    	instrObj.getNewInstruction(inFile);
+        String s;
+        while(inFile.hasNext()){
+            s = inFile.nextLine();
+            //Print line of input
+            System.out.println(s);
+            InstructionObject instrObj = new InstructionObject();
+            instrObj.assignObjElements(s);
+            //Print end of instruction object exclaimation
+            instrObj.instrFunction();
+
+        }
 
         System.out.println("\nSecureSystem!\n");
+
     }
 }

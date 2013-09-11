@@ -1,3 +1,5 @@
+write Hal HObj 
+read Hal 
 write Lyle LObj 10
 read Hal LObj 
 write Lyle HObj 20
