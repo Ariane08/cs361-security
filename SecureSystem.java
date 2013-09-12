@@ -28,7 +28,7 @@ class InstructionObject {
 
             //Check third ele of instruction
             objName = tokens[2];      
-            //System.out.println("objName = " + objName);
+            //System.out.println("In assignObjElements! objName = " + objName);
         }
         else {
             type = "BAD";
@@ -127,35 +127,37 @@ class ObjectManager {
 }
 
 class ReferenceMonitor { 
-    private static Map<String, Integer> subjectMap = new HashMap<String, Integer>();
-    private static Map<String, Integer> objectMap = new HashMap<String, Integer>();
+    //public static Map<String, Integer> rmMap = new HashMap<String, Integer>();
+    //public static Map<String, Integer> objectMap = new HashMap<String, Integer>();
+    public static HashMap<String, Integer> rmMap = new HashMap<String, Integer>();
 
     //RM map handling
-    public static void updateSubjRM(String s, Integer level) {
-        subjectMap.put(s, level);
+    public static void updateRM(String s, Integer level) {
+        rmMap.put(s, level);
         System.out.println("Updated subjRM with " + s + " " + level + "\n");   
     }
-    public static Integer getSubjRM(String s) {
+    public static Integer getRM(String s) {
         //gets integer level of subject held by the RM
-        subjectMap.get(s);
-        System.out.println("looked up " + s + " as " + subjectMap.get(s) + "\n");
-        return subjectMap.get(s);
+        //rmMap.get(s);
+        System.out.println("getSubjRM: looked up " + s + " as " + rmMap.get(s) + "\n");
+        return (Integer)rmMap.get(s);
     }
-    public static void updateObjRM(String o, Integer level) {
-        objectMap.put(o, level);   
-        System.out.println("Updated RM with " + o + " " + level + "\n");
-    }
-    public static Integer getObjRM(String o) {
-        //gets Subject object associated with name s
-        objectMap.get(o);
-        System.out.println("looked up " + o + " as " + objectMap.get(o) + "\n");
-        return objectMap.get(o);
-    }
+    // public static void updateObjRM(String o, Integer level) {
+    //     rmMap.put(o, level);   
+    //     System.out.println("Updated RM with " + o + " " + level + "\n");
+    // }
+    // public static Integer getObjRM(String o) {
+    //     //gets Subject object associated with name s
+    //     //rmMap.get(o);
+    //     System.out.println("getObjRM: looked up " + o + " as " + rmMap.get(o) + "\n");
+    //     return rmMap.get(o);
+    // }
 
     //BLP
     public static void monitorInstruction(InstructionObject instrObj) {
         if (instrObj.type.equals("READ")){
             //SSP
+            System.out.println("called SSP with " + instrObj.subjName + " " + instrObj.objName);
             ssp(instrObj.subjName, instrObj.objName) ;
         }
         else if (instrObj.type.equals("WRITE")){
@@ -172,16 +174,19 @@ class ReferenceMonitor {
         // System.out.println("allowed subj " + s +  "with level " + getSubjRM(s));
         // System.out.println("to read " + o +  "with level " + getObjRM(o) + "\n" );
         //**replace comparison with dominates method that we need to write
-        if (getSubjRM(s) >= getObjRM(o)){
-            //allow access
-            System.out.println("allowed subj " + s +  "with level " + getSubjRM(s));
-            System.out.println("to read " + o +  "with level " + getObjRM(o) + "\n" );
-        }
-        else {
-            //Deny access
-            System.out.println("This instruction violates SSP\n");
-        }
-        System.out.println("ssp!");
+        System.out.println("SSP get subj " + getRM(s));
+        System.out.println("SSP get obj " + getRM(o));
+
+        // if (getRM(s).intValue() >= getRM(o).intValue()){
+        //     //allow access
+        //     System.out.println("allowed subj " + s +  "with level " + getSubjRM(s));
+        //     System.out.println("to read " + o +  "with level " + getObjRM(o) + "\n" );
+        // }
+        // else {
+        //     //Deny access
+        //     System.out.println("This instruction violates SSP\n");
+        // }
+        // System.out.println("ssp!");
     } 
 
     public static void starProperty() {
@@ -212,23 +217,23 @@ class SecureSystem {
         lyle.createSubject("Lyle", low);
         //System.out.println("\nCreated subject = " + lyle.name + " " + lyle.level + "\n");
         //Hard association set in RM
-        rm.updateSubjRM("Lyle", low);
+        rm.updateRM("Lyle", low);
 
         Subject hal = new Subject();
         hal.createSubject("Hal", high);
         //System.out.println("Created subject = " + hal.name + " " + hal.level + "\n");
-        rm.updateSubjRM("Hal", high);
+        rm.updateRM("Hal", high);
 
         //Make objects known to the secure system
         SecureObject lobj = new SecureObject();
         lobj.createNewObject("Lobj", low);
         //System.out.println("Created object = " + lobj.name + " " + lobj.level + "\n");
-        rm.updateObjRM("Lobj", low);
+        rm.updateRM("Lobj", low);
 
         SecureObject hobj = new SecureObject();
         hobj.createNewObject("Hobj", high);
         //System.out.println("Created object = " + hobj.name + " " + hobj.level + "\n");
-        rm.updateObjRM("Hobj", high);
+        rm.updateRM("Hobj", high);
 
 
         //Instructions are parsed from the list
