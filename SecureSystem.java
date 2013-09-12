@@ -20,15 +20,15 @@ class InstructionObject {
             if (!type.equals("WRITE") && !type.equals("READ")){
                 type = "BAD";
             }
-            System.out.println("type = " + type);
+            //System.out.println("type = " + type);
 
             //Check second ele of instruction
             subjName = tokens[1];
-            System.out.println("subjName = " + subjName);
+            //System.out.println("subjName = " + subjName);
 
             //Check third ele of instruction
             objName = tokens[2];      
-            System.out.println("objName = " + objName);
+            //System.out.println("objName = " + objName);
         }
         else {
             type = "BAD";
@@ -39,7 +39,7 @@ class InstructionObject {
         if (type.equals("WRITE")){
             if (tokens.length == 4){
                 value = Integer.parseInt(tokens[3]);
-                System.out.println("value = " + value);
+                System.out.println("WRITE value = " + value);
             }
             else {
                 type = "BAD";
@@ -49,7 +49,7 @@ class InstructionObject {
     }
 
     public static void instrMethod() {
-        System.out.println("InstructionObject!\n");
+        System.out.println("=====================end of instruction=======\n");
     }
 }
 
@@ -60,7 +60,7 @@ class BadInstruction {
 }
 
 class SecurityLevel{
-    // static int level;
+    // static final int level;
     // public final static void LOW(){
     //     level = 0;
     // }
@@ -126,68 +126,60 @@ class ObjectManager {
     }
 }
 
-class Lookup {
-    // map subjName and objName (from instrObj) 2 objects in the program
-    private static Map<String, Subject> sMap = new HashMap<String, Subject>();
-    private static Map<String, SecureObject> oMap = new HashMap<String, SecureObject>();
-
-    public static void setSubj(String sSub, Subject sub) {
-        sMap.put(sSub, sub);
-    }
-    public static void getSubj(String s) {
-        //gets Subject object associated with name s
-        sMap.get(s);
-        System.out.println("looked up " + s + " as " + sMap.get(s) + "\n");
-    }
-
-    public static void setObj(String sObj, SecureObject obj) {
-        oMap.put(sObj, obj);
-    }
-    public static void getObj(String o) {
-        //gets Subject object associated with name s
-        oMap.get(o);
-        System.out.println("looked up " + o + " as " + oMap.get(o) + "\n");
-    }
-}
-
 class ReferenceMonitor { 
-    private static Map<Subject, Integer> subjectMap = new HashMap<Subject, Integer>();
-    private static Map<SecureObject, Integer> objectMap = new HashMap<SecureObject, Integer>();
+    private static Map<String, Integer> subjectMap = new HashMap<String, Integer>();
+    private static Map<String, Integer> objectMap = new HashMap<String, Integer>();
 
-    public static void updateSubjectRM(Subject s, Integer level) {
-        subjectMap.put(s, level);   
+    //RM map handling
+    public static void updateSubjRM(String s, Integer level) {
+        subjectMap.put(s, level);
+        System.out.println("Updated subjRM with " + s + " " + level + "\n");   
     }
-    public static void updateObjectRM(SecureObject o, Integer level) {
+    public static Integer getSubjRM(String s) {
+        //gets integer level of subject held by the RM
+        subjectMap.get(s);
+        System.out.println("looked up " + s + " as " + subjectMap.get(s) + "\n");
+        return subjectMap.get(s);
+    }
+    public static void updateObjRM(String o, Integer level) {
         objectMap.put(o, level);   
+        System.out.println("Updated RM with " + o + " " + level + "\n");
+    }
+    public static Integer getObjRM(String o) {
+        //gets Subject object associated with name s
+        objectMap.get(o);
+        System.out.println("looked up " + o + " as " + objectMap.get(o) + "\n");
+        return objectMap.get(o);
     }
 
     //BLP
     public static void monitorInstruction(InstructionObject instrObj) {
         if (instrObj.type.equals("READ")){
             //SSP
-            //ssp(lookup.getSubj(instrObj.subjName), lookup.getObj(instrObj.objName)) ;
+            ssp(instrObj.subjName, instrObj.objName) ;
         }
         else if (instrObj.type.equals("WRITE")){
             //*-Property
             //starProperty(instrObj.subjName)
         }
         else{
-            System.out.println("BAD instruction send to RM");
+            System.out.println("BAD instruction send to RM\n");
         }
 
     }
 
-    public static void ssp(Subject s, SecureObject o) {
-        if (subjectMap.containsKey(s) && objectMap.containsKey(o)){
-            //**replace comparison with dominates method that we need to write
-            if (s.level >= o.level){
-                //allow access
-
-            }
-            else {
-                //Deny access
-                System.out.println("This instruction violates SSP\n");
-            }
+    public static void ssp(String s, String o) {
+        // System.out.println("allowed subj " + s +  "with level " + getSubjRM(s));
+        // System.out.println("to read " + o +  "with level " + getObjRM(o) + "\n" );
+        //**replace comparison with dominates method that we need to write
+        if (getSubjRM(s) >= getObjRM(o)){
+            //allow access
+            System.out.println("allowed subj " + s +  "with level " + getSubjRM(s));
+            System.out.println("to read " + o +  "with level " + getObjRM(o) + "\n" );
+        }
+        else {
+            //Deny access
+            System.out.println("This instruction violates SSP\n");
         }
         System.out.println("ssp!");
     } 
@@ -210,38 +202,33 @@ class SecureSystem {
 
         // SecurityLevel low  = SecurityLevel.LOW;
         // SecurityLevel high = SecurityLevel.HIGH;
-        int low = 0;
-        int high = 1;
+        int low = 1;
+        int high = 2;
 
         ReferenceMonitor rm = new ReferenceMonitor();
-        //Lookup lookup = new Lookup();
 
         //Make subjects known the the secure system
         Subject lyle = new Subject();
         lyle.createSubject("Lyle", low);
-        System.out.println(lyle.name + " " + lyle.level + "\n");
+        //System.out.println("\nCreated subject = " + lyle.name + " " + lyle.level + "\n");
         //Hard association set in RM
-        rm.updateSubjectRM(lyle, low);
-        //Set in lookup
-        //rm.lookup.setSubj(lyle.name, lyle);
-
+        rm.updateSubjRM("Lyle", low);
 
         Subject hal = new Subject();
         hal.createSubject("Hal", high);
-        System.out.println(hal.name + " " + hal.level + "\n");
-        rm.updateSubjectRM(hal, high);
-        //lookup.setSubj(hal.name, hal);
+        //System.out.println("Created subject = " + hal.name + " " + hal.level + "\n");
+        rm.updateSubjRM("Hal", high);
 
         //Make objects known to the secure system
         SecureObject lobj = new SecureObject();
         lobj.createNewObject("Lobj", low);
-        System.out.println(lobj.name + " " + lobj.level + "\n");
-        rm.updateObjectRM(lobj, low);
+        //System.out.println("Created object = " + lobj.name + " " + lobj.level + "\n");
+        rm.updateObjRM("Lobj", low);
 
         SecureObject hobj = new SecureObject();
         hobj.createNewObject("Hobj", high);
-        System.out.println(hobj.name + " " + hobj.level + "\n");
-        rm.updateObjectRM(hobj, high);
+        //System.out.println("Created object = " + hobj.name + " " + hobj.level + "\n");
+        rm.updateObjRM("Hobj", high);
 
 
         //Instructions are parsed from the list
@@ -249,13 +236,14 @@ class SecureSystem {
         while(inFile.hasNext()){
             s = inFile.nextLine();
             //Print line of input
-            System.out.println(s);
+            System.out.println("Instruction line = " + s);
             InstructionObject instrObj = new InstructionObject();
             instrObj.assignObjElements(s);
-            //Print end of instruction object exclaimation
-            instrObj.instrMethod();
 
             rm.monitorInstruction(instrObj);
+
+            //Print end of instruction divider
+            instrObj.instrMethod();
 
         }
 
