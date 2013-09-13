@@ -19,8 +19,8 @@ class InstructionObject {
             if (!type.equals("WRITE") && !type.equals("READ")){
                 type = "BAD";
             }
-            subjName = tokens[1];
-            objName = tokens[2];      
+            subjName = tokens[1].toLowerCase();
+            objName = tokens[2].toLowerCase();      
         }
         else {
             type = "BAD";
@@ -146,6 +146,8 @@ class ReferenceMonitor {
         if (SecurityLevel.dominates(getRM(s).intValue(), getRM(o).intValue())){
             //allow access
             System.out.println("\nSSP allowed subj " + s +  " with level " + getRM(s) + " to read " + o +  " with level " + getRM(o) + "\n");
+            //Tell ObectManager what to do
+            //ObjectManager.read(s, o);
         }
         else {
             System.out.println("This instruction violates SSP");
@@ -168,6 +170,14 @@ class ReferenceMonitor {
 
     class ObjectManager {
         // Perform requests of the ReferenceMonitor
+
+        //READ assign Subject.TEMP new value
+        // public void read(String s, String o){
+        //     s.TEMP = o.currentValue;
+        // }
+
+        //WRITE assign SecureObject.currentValue new value
+
         public void objManFunction() {
             System.out.println("ObjectManager!");
         }
@@ -188,25 +198,25 @@ class SecureSystem {
 
         //Make subjects known the the secure system
         Subject lyle = new Subject();
-        lyle.createSubject("Lyle", low);
+        lyle.createSubject("lyle", low);
         //System.out.println("\nCreated subject = " + lyle.name + " " + lyle.level + "\n");
-        rm.updateRM("Lyle", low);
+        rm.updateRM("lyle", low);
 
         Subject hal = new Subject();
-        hal.createSubject("Hal", high);
+        hal.createSubject("hal", high);
         //System.out.println("Created subject = " + hal.name + " " + hal.level + "\n");
-        rm.updateRM("Hal", high);
+        rm.updateRM("hal", high);
 
         //Make objects known to the secure system
         SecureObject lobj = new SecureObject();
-        lobj.createNewObject("LObj", low);
+        lobj.createNewObject("lobj", low);
         //System.out.println("Created object = " + lobj.name + " " + lobj.level + "\n");
-        rm.updateRM("LObj", low);
+        rm.updateRM("lobj", low);
 
         SecureObject hobj = new SecureObject();
-        hobj.createNewObject("HObj", high);
+        hobj.createNewObject("hobj", high);
         //System.out.println("Created object = " + hobj.name + " " + hobj.level + "\n");
-        rm.updateRM("HObj", high);
+        rm.updateRM("hobj", high);
 
 
         //Instructions are parsed from the list
@@ -218,6 +228,11 @@ class SecureSystem {
             InstructionObject instrObj = new InstructionObject();
             instrObj.assignObjElements(s);
 
+            //if (type = BAD) 
+            //   BadInsruction bio = new BadInstruction();
+            //    bio.set(instruObj)
+
+            //if (type != BAD)
             rm.monitorInstruction(instrObj);
 
             //Print end of instruction divider
