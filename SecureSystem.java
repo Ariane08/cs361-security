@@ -44,12 +44,6 @@ class InstructionObject {
     }
 }
 
-class BadInstruction {
-    public static void badInstruction() {
-        System.out.println("BadInstruction!");
-    }
-}
-
 class SecurityLevel{
     static final int LOW = 1;
     static final int HIGH = 2;
@@ -152,6 +146,8 @@ class ReferenceMonitor {
             //allow access
             System.out.println("*-Property allowed subj " + s +  " with level " + getRM(s) + " to write to " + o +  " with level " + getRM(o) + "\n");
             
+            System.out.println("write is called with " + objMap.get(o).name);
+
             //Tell ObectManager what to do
             objMan.write(objMap.get(o), v);
         }
