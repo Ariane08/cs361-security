@@ -15,26 +15,17 @@ class InstructionObject {
         String[] tokens = s.split(delim);
 
         if (tokens.length == 3 || tokens.length == 4){
-            //Check first ele of instruction
             type = tokens[0].toUpperCase();
             if (!type.equals("WRITE") && !type.equals("READ")){
                 type = "BAD";
             }
-            //System.out.println("type = " + type);
-
-            //Check second ele of instruction
             subjName = tokens[1];
-            //System.out.println("subjName = " + subjName);
-
-            //Check third ele of instruction
             objName = tokens[2];      
-            //System.out.println("In assignObjElements! objName = " + objName);
         }
         else {
             type = "BAD";
             System.out.println("type2 = " + type);
         }
-
         //If WRITE, Check fourth ele of instruction
         if (type.equals("WRITE")){
             if (tokens.length == 4){
@@ -60,7 +51,6 @@ class BadInstruction {
 }
 
 class SecurityLevel{
-    // static final int level;
     static final int LOW = 1;
     static final int HIGH = 2;
 
@@ -70,28 +60,26 @@ class SecurityLevel{
         }
         return false;
     }
-    // public final static void LOW(){
-    //     level = 0;
-    // }
-    // public final static void HIGH(){
-    //     level = 1;
-    // }
-    //final static SecurityLevel LOW = 0;
+
+    public static boolean writeAccess(int sLevel, int oLevel){
+        if (oLevel >= sLevel){
+            return true;
+        }
+        return false;
+    }
 }
 
 class Subject {
     public static String name;
     //temp is the value the subject most recently read
     public static int temp;
-    public static int level; // NEED TO CHANGE INT!!!
+    public static int level;
 
     public static void createSubject(String inName, int inLevel) {
-        //get and set name
         name = inName;
         //temp is initially zero
         temp = 0;
         level = inLevel;
-        //updateRM();
     }
 
     public static void read() {
@@ -104,10 +92,6 @@ class Subject {
         //subject updates to the value of the obj
         //does this by communicating with the ObjectManager
         temp = 0;
-    }
-
-    public static void subjFunction() {
-        System.out.println("Referenced a subject!");
     }
 }
 
@@ -122,17 +106,6 @@ class SecureObject {
         name = inName;
         level = inLevel;
     }
-
-    public static void objFunction() {
-        System.out.println("Referenced an object!");
-    }
-}
-
-class ObjectManager {
-    // Perform requests of the ReferenceMonitor
-    public static void objManFunction() {
-        System.out.println("ObjectManager!");
-    }
 }
 
 class ReferenceMonitor { 
@@ -141,12 +114,11 @@ class ReferenceMonitor {
     //RM map handling
     public static void updateRM(String s, Integer level) {
         rmMap.put(s, level);
-        System.out.println("Updated RM with " + s + " " + level + " and rmMap.get(s) = " + rmMap.get(s) + "\n");
+        System.out.println("Updated RM with " + s + " " + level + " and rmMap.get(s) = " + rmMap.get(s));
     }
     public static Integer getRM(String s) {
         //gets integer level of subject held by the RM
-        //rmMap.get(s);
-        System.out.println("rmMap.get(" + s + ") = " + (Integer)rmMap.get(s) + "\n");
+        //System.out.println("rmMap.get(" + s + ") = " + (Integer)rmMap.get(s));
         return (Integer)rmMap.get(s);
     }
 
@@ -159,39 +131,51 @@ class ReferenceMonitor {
         }
         else if (instrObj.type.equals("WRITE")){
             //*-Property
-            //starProperty(instrObj.subjName)
+            starProperty(instrObj.subjName, instrObj.objName);
         }
         else{
-            System.out.println("BAD instruction send to RM\n");
+            System.out.println("BAD instruction sent to RM!!!\n");
         }
 
     }
 
+    //READ = SSP
     public static void ssp(String s, String o) {
         System.out.println("SSP get subj level as " + getRM(s) + " and object level as " + getRM(o));
 
         if (SecurityLevel.dominates(getRM(s).intValue(), getRM(o).intValue())){
             //allow access
-            System.out.println("allowed subj " + s +  " with level " + getRM(s) + " to read " + o +  " with level " + getRM(o) + "\n");
+            System.out.println("\nSSP allowed subj " + s +  " with level " + getRM(s) + " to read " + o +  " with level " + getRM(o) + "\n");
         }
         else {
-            //Deny access
-            System.out.println("This instruction violates SSP\n");
+            System.out.println("This instruction violates SSP");
         }
-        System.out.println("ssp!");
     } 
 
-    public static void starProperty() {
-        System.out.println("starProperty!");
+    //WRITE = *-Property
+    public static void starProperty(String s, String o) {
+        System.out.println("SSP get subj level as " + getRM(s) + " and object level as " + getRM(o));
+
+        if (SecurityLevel.writeAccess(getRM(s).intValue(), getRM(o).intValue())){
+            //allow access
+            System.out.println("\n*-Property allowed subj " + s +  " with level " + getRM(s) + " to write to " + o +  " with level " + getRM(o) + "\n");
+        }
+        else {
+            System.out.println("This instruction violates *-Property");
+        }
     }    
 
-    public static void refMonFunction() {
-        System.out.println("ReferenceMonitor!");
+
+    class ObjectManager {
+        // Perform requests of the ReferenceMonitor
+        public void objManFunction() {
+            System.out.println("ObjectManager!");
+        }
     }
 
 }
 
-//Top level class?
+//Top level class
 class SecureSystem {
 
     public static void main(String[] args) throws IOException{
@@ -199,8 +183,6 @@ class SecureSystem {
 
         int low  = SecurityLevel.LOW;
         int high = SecurityLevel.HIGH;
-        // int low = 1;
-        // int high = 2;
 
         ReferenceMonitor rm = new ReferenceMonitor();
 
@@ -208,7 +190,6 @@ class SecureSystem {
         Subject lyle = new Subject();
         lyle.createSubject("Lyle", low);
         //System.out.println("\nCreated subject = " + lyle.name + " " + lyle.level + "\n");
-        //Hard association set in RM
         rm.updateRM("Lyle", low);
 
         Subject hal = new Subject();
@@ -233,7 +214,7 @@ class SecureSystem {
         while(inFile.hasNext()){
             s = inFile.nextLine();
             //Print line of input
-            System.out.println("Instruction line = " + s);
+            System.out.println("\nInstruction line = " + s);
             InstructionObject instrObj = new InstructionObject();
             instrObj.assignObjElements(s);
 
