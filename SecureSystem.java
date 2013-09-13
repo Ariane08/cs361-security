@@ -134,24 +134,14 @@ class ReferenceMonitor {
     //RM map handling
     public static void updateRM(String s, Integer level) {
         rmMap.put(s, level);
-        System.out.println("Updated subjRM with " + s + " " + level + "\n");   
+        System.out.println("Updated RM with " + s + " " + level + " and rmMap.get(s) = " + rmMap.get(s) + "\n");
     }
     public static Integer getRM(String s) {
         //gets integer level of subject held by the RM
         //rmMap.get(s);
-        System.out.println("getSubjRM: looked up " + s + " as " + rmMap.get(s) + "\n");
+        System.out.println("rmMap.get(" + s + ") = " + (Integer)rmMap.get(s) + "\n");
         return (Integer)rmMap.get(s);
     }
-    // public static void updateObjRM(String o, Integer level) {
-    //     rmMap.put(o, level);   
-    //     System.out.println("Updated RM with " + o + " " + level + "\n");
-    // }
-    // public static Integer getObjRM(String o) {
-    //     //gets Subject object associated with name s
-    //     //rmMap.get(o);
-    //     System.out.println("getObjRM: looked up " + o + " as " + rmMap.get(o) + "\n");
-    //     return rmMap.get(o);
-    // }
 
     //BLP
     public static void monitorInstruction(InstructionObject instrObj) {
@@ -174,8 +164,7 @@ class ReferenceMonitor {
         // System.out.println("allowed subj " + s +  "with level " + getSubjRM(s));
         // System.out.println("to read " + o +  "with level " + getObjRM(o) + "\n" );
         //**replace comparison with dominates method that we need to write
-        System.out.println("SSP get subj " + getRM(s));
-        System.out.println("SSP get obj " + getRM(o));
+        System.out.println("SSP get subj level as " + getRM(s) + " and object level as " + getRM(o));
 
         // if (getRM(s).intValue() >= getRM(o).intValue()){
         //     //allow access
@@ -226,14 +215,14 @@ class SecureSystem {
 
         //Make objects known to the secure system
         SecureObject lobj = new SecureObject();
-        lobj.createNewObject("Lobj", low);
+        lobj.createNewObject("LObj", low);
         //System.out.println("Created object = " + lobj.name + " " + lobj.level + "\n");
-        rm.updateRM("Lobj", low);
+        rm.updateRM("LObj", low);
 
         SecureObject hobj = new SecureObject();
-        hobj.createNewObject("Hobj", high);
+        hobj.createNewObject("HObj", high);
         //System.out.println("Created object = " + hobj.name + " " + hobj.level + "\n");
-        rm.updateRM("Hobj", high);
+        rm.updateRM("HObj", high);
 
 
         //Instructions are parsed from the list
