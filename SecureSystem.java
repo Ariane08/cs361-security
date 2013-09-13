@@ -61,15 +61,6 @@ class BadInstruction {
 
 class SecurityLevel{
     // static final int level;
-    static final int LOW = 1;
-    static final int HIGH = 2;
-
-    public static boolean dominates(int sLevel, int oLevel){
-        if (sLevel >= oLevel){
-            return true;
-        }
-        return false;
-    }
     // public final static void LOW(){
     //     level = 0;
     // }
@@ -128,29 +119,34 @@ class SecureObject {
     }
 }
 
-class ObjectManager {
-    // Perform requests of the ReferenceMonitor
-    public static void objManFunction() {
-        System.out.println("ObjectManager!");
-    }
-}
-
 class ReferenceMonitor { 
+    //public static Map<String, Integer> rmMap = new HashMap<String, Integer>();
+    //public static Map<String, Integer> objectMap = new HashMap<String, Integer>();
     public static HashMap<String, Integer> rmMap = new HashMap<String, Integer>();
 
     //RM map handling
     public static void updateRM(String s, Integer level) {
         rmMap.put(s, level);
-        System.out.println("Updated RM with " + s + " " + level + " and rmMap.get(s) = " + rmMap.get(s) + "\n");
+        System.out.println("Updated subjRM with " + s + " " + level + "\n");   
     }
     public static Integer getRM(String s) {
         //gets integer level of subject held by the RM
         //rmMap.get(s);
-        System.out.println("rmMap.get(" + s + ") = " + (Integer)rmMap.get(s) + "\n");
+        System.out.println("getSubjRM: looked up " + s + " as " + rmMap.get(s) + "\n");
         return (Integer)rmMap.get(s);
     }
+    // public static void updateObjRM(String o, Integer level) {
+    //     rmMap.put(o, level);   
+    //     System.out.println("Updated RM with " + o + " " + level + "\n");
+    // }
+    // public static Integer getObjRM(String o) {
+    //     //gets Subject object associated with name s
+    //     //rmMap.get(o);
+    //     System.out.println("getObjRM: looked up " + o + " as " + rmMap.get(o) + "\n");
+    //     return rmMap.get(o);
+    // }
 
-    //=======================BLP
+    //BLP
     public static void monitorInstruction(InstructionObject instrObj) {
         if (instrObj.type.equals("READ")){
             //SSP
@@ -168,17 +164,22 @@ class ReferenceMonitor {
     }
 
     public static void ssp(String s, String o) {
-        System.out.println("SSP get subj level as " + getRM(s) + " and object level as " + getRM(o));
+        // System.out.println("allowed subj " + s +  "with level " + getSubjRM(s));
+        // System.out.println("to read " + o +  "with level " + getObjRM(o) + "\n" );
+        //**replace comparison with dominates method that we need to write
+        System.out.println("SSP get subj " + getRM(s));
+        System.out.println("SSP get obj " + getRM(o));
 
-        if (SecurityLevel.dominates(getRM(s).intValue(), getRM(o).intValue())){
-            //allow access
-            System.out.println("allowed subj " + s +  " with level " + getRM(s) + " to read " + o +  " with level " + getRM(o) + "\n");
-        }
-        else {
-            //Deny access
-            System.out.println("This instruction violates SSP\n");
-        }
-        System.out.println("ssp!");
+        // if (getRM(s).intValue() >= getRM(o).intValue()){
+        //     //allow access
+        //     System.out.println("allowed subj " + s +  "with level " + getSubjRM(s));
+        //     System.out.println("to read " + o +  "with level " + getObjRM(o) + "\n" );
+        // }
+        // else {
+        //     //Deny access
+        //     System.out.println("This instruction violates SSP\n");
+        // }
+        // System.out.println("ssp!");
     } 
 
     public static void starProperty() {
@@ -189,6 +190,14 @@ class ReferenceMonitor {
         System.out.println("ReferenceMonitor!");
     }
 
+    // Inner class to RM
+    class ObjectManager {
+    // Perform requests of the ReferenceMonitor
+        public void objManFunction() {
+            System.out.println("ObjectManager!");
+        }
+    }
+
 }
 
 //Top level class?
@@ -197,10 +206,10 @@ class SecureSystem {
     public static void main(String[] args) throws IOException{
     	Scanner inFile = new Scanner(new FileReader("instructionList.txt"));
 
-        int low  = SecurityLevel.LOW;
-        int high = SecurityLevel.HIGH;
-        // int low = 1;
-        // int high = 2;
+        // SecurityLevel low  = SecurityLevel.LOW;
+        // SecurityLevel high = SecurityLevel.HIGH;
+        int low = 1;
+        int high = 2;
 
         ReferenceMonitor rm = new ReferenceMonitor();
 
@@ -218,14 +227,14 @@ class SecureSystem {
 
         //Make objects known to the secure system
         SecureObject lobj = new SecureObject();
-        lobj.createNewObject("LObj", low);
+        lobj.createNewObject("Lobj", low);
         //System.out.println("Created object = " + lobj.name + " " + lobj.level + "\n");
-        rm.updateRM("LObj", low);
+        rm.updateRM("Lobj", low);
 
         SecureObject hobj = new SecureObject();
-        hobj.createNewObject("HObj", high);
+        hobj.createNewObject("Hobj", high);
         //System.out.println("Created object = " + hobj.name + " " + hobj.level + "\n");
-        rm.updateRM("HObj", high);
+        rm.updateRM("Hobj", high);
 
 
         //Instructions are parsed from the list
