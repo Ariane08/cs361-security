@@ -120,7 +120,7 @@ class ReferenceMonitor {
         }
         else if (instrObj.type.equals("WRITE")){
             //*-Property
-            starProperty(instrObj.subjName, instrObj.objName);
+            starProperty(instrObj.subjName, instrObj.objName, subjMap, objMap, instrObj.value);
         }
         else{
             System.out.println("Bad instruction\n");
@@ -145,38 +145,40 @@ class ReferenceMonitor {
     } 
 
     //WRITE = *-Property
-    public static void starProperty(String s, String o) {
+    public static void starProperty(String s, String o, HashMap<String, Subject> subjMap, HashMap<String, SecureObject> objMap, int v) {
         //System.out.println("*-Property get subj level as " + getRM(s) + " and object level as " + getRM(o));
 
         if (SecurityLevel.writeAccess(getRM(s).intValue(), getRM(o).intValue())){
             //allow access
             System.out.println("*-Property allowed subj " + s +  " with level " + getRM(s) + " to write to " + o +  " with level " + getRM(o) + "\n");
+            
+            //Tell ObectManager what to do
+            objMan.write(objMap.get(o), v);
         }
         else {
             System.out.println("This instruction violates *-Property");
         }
     }    
 
-
+    /* Perform requests of the ReferenceMonitor */
     static class ObjectManager {
-        // Perform requests of the ReferenceMonitor
-        private int value = 10;
 
         //READ assign Subject.TEMP new value
         public void read(Subject s, SecureObject o){
             s.temp = o.currentValue;
+            System.out.println(s.name +" read " + o.name + " as " + o.currentValue);
         }
 
         //WRITE assign SecureObject.currentValue new value
-
-        public void objManFunction() {
-            System.out.println("ObjectManager!");
+        public void write(SecureObject o, int value){
+            o.currentValue = value;
+            System.out.println(o.name +" was written as " + value);
         }
     }
 
 }
 
-//Top level class
+/* Top level class */
 class SecureSystem {
 
     public static HashMap<String, Subject> subjMap = new HashMap<String, Subject>();
@@ -226,8 +228,7 @@ class SecureSystem {
             InstructionObject instrObj = new InstructionObject();
             instrObj.assignObjElements(s);
 
-            //Check the instruction against the RM
-            // referencing Subjects and secureObjects made in main()
+            //Check the instruction against the RM referencing Subjects and secureObjects made in main()
             rm.monitorInstruction(instrObj, subjMap, objMap);
             
 
