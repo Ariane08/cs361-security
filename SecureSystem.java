@@ -189,7 +189,7 @@ class ReferenceMonitor {
 class SecureSystem {
 
     public static void main(String[] args) throws IOException{
-    	Scanner inFile = new Scanner(new FileReader("instructionList.txt"));
+        Scanner inFile = new Scanner(new FileReader("instructionList.txt"));
 
         int low  = SecurityLevel.LOW;
         int high = SecurityLevel.HIGH;
