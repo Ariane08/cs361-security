@@ -61,6 +61,15 @@ class BadInstruction {
 
 class SecurityLevel{
     // static final int level;
+    static final int LOW = 1;
+    static final int HIGH = 2;
+
+    public static boolean dominates(int sLevel, int oLevel){
+        if (sLevel >= oLevel){
+            return true;
+        }
+        return false;
+    }
     // public final static void LOW(){
     //     level = 0;
     // }
@@ -127,8 +136,6 @@ class ObjectManager {
 }
 
 class ReferenceMonitor { 
-    //public static Map<String, Integer> rmMap = new HashMap<String, Integer>();
-    //public static Map<String, Integer> objectMap = new HashMap<String, Integer>();
     public static HashMap<String, Integer> rmMap = new HashMap<String, Integer>();
 
     //RM map handling
@@ -143,7 +150,7 @@ class ReferenceMonitor {
         return (Integer)rmMap.get(s);
     }
 
-    //BLP
+    //=======================BLP
     public static void monitorInstruction(InstructionObject instrObj) {
         if (instrObj.type.equals("READ")){
             //SSP
@@ -161,21 +168,17 @@ class ReferenceMonitor {
     }
 
     public static void ssp(String s, String o) {
-        // System.out.println("allowed subj " + s +  "with level " + getSubjRM(s));
-        // System.out.println("to read " + o +  "with level " + getObjRM(o) + "\n" );
-        //**replace comparison with dominates method that we need to write
         System.out.println("SSP get subj level as " + getRM(s) + " and object level as " + getRM(o));
 
-        // if (getRM(s).intValue() >= getRM(o).intValue()){
-        //     //allow access
-        //     System.out.println("allowed subj " + s +  "with level " + getSubjRM(s));
-        //     System.out.println("to read " + o +  "with level " + getObjRM(o) + "\n" );
-        // }
-        // else {
-        //     //Deny access
-        //     System.out.println("This instruction violates SSP\n");
-        // }
-        // System.out.println("ssp!");
+        if (SecurityLevel.dominates(getRM(s).intValue(), getRM(o).intValue())){
+            //allow access
+            System.out.println("allowed subj " + s +  " with level " + getRM(s) + " to read " + o +  " with level " + getRM(o) + "\n");
+        }
+        else {
+            //Deny access
+            System.out.println("This instruction violates SSP\n");
+        }
+        System.out.println("ssp!");
     } 
 
     public static void starProperty() {
@@ -194,10 +197,10 @@ class SecureSystem {
     public static void main(String[] args) throws IOException{
     	Scanner inFile = new Scanner(new FileReader("instructionList.txt"));
 
-        // SecurityLevel low  = SecurityLevel.LOW;
-        // SecurityLevel high = SecurityLevel.HIGH;
-        int low = 1;
-        int high = 2;
+        int low  = SecurityLevel.LOW;
+        int high = SecurityLevel.HIGH;
+        // int low = 1;
+        // int high = 2;
 
         ReferenceMonitor rm = new ReferenceMonitor();
 
