@@ -34,7 +34,7 @@ class InstructionObject {
             }
             else {
                 type = "BAD";
-                System.out.println("type2 = " + type);
+                System.out.println("type3 = " + type);
             }
         }
     }
@@ -81,18 +81,6 @@ class Subject {
         temp = 0;
         level = inLevel;
     }
-
-    public static void read() {
-        //temp is updated to the value of the obj
-        //should get this value by communicating with the ObjectManager
-        temp = 0;
-    }
-
-    public static void write() {
-        //subject updates to the value of the obj
-        //does this by communicating with the ObjectManager
-        temp = 0;
-    }
 }
 
 class SecureObject {
@@ -111,10 +99,13 @@ class SecureObject {
 class ReferenceMonitor { 
     public static HashMap<String, Integer> rmMap = new HashMap<String, Integer>();
 
+    //Format:  OuterClass.InnerClass innerObject = outerObject.new InnerClass();
+    //public static ReferenceMonitor.ObjectManager objMan = new this.ObjectManager();
+
     //RM map handling
     public static void updateRM(String s, Integer level) {
         rmMap.put(s, level);
-        System.out.println("Updated RM with " + s + " " + level + " and rmMap.get(s) = " + rmMap.get(s));
+        System.out.println("RM set " + s + " to level " + level);
     }
     public static Integer getRM(String s) {
         //gets integer level of subject held by the RM
@@ -123,31 +114,31 @@ class ReferenceMonitor {
     }
 
     //=======================BLP
-    public static void monitorInstruction(InstructionObject instrObj) {
+    public static void monitorInstruction(InstructionObject instrObj, HashMap<String, Subject> subjMap, HashMap<String, SecureObject> objMap) {
         if (instrObj.type.equals("READ")){
             //SSP
-            System.out.println("called SSP with " + instrObj.subjName + " " + instrObj.objName);
-            ssp(instrObj.subjName, instrObj.objName) ;
+            ssp(instrObj.subjName, instrObj.objName, subjMap, objMap) ;
         }
         else if (instrObj.type.equals("WRITE")){
             //*-Property
             starProperty(instrObj.subjName, instrObj.objName);
         }
         else{
-            System.out.println("BAD instruction sent to RM!!!\n");
+            System.out.println("Bad instruction\n");
         }
 
     }
 
     //READ = SSP
-    public static void ssp(String s, String o) {
+    public static void ssp(String s, String o, HashMap<String, Subject> subjMap, HashMap<String, SecureObject> objMap) {
         System.out.println("SSP get subj level as " + getRM(s) + " and object level as " + getRM(o));
 
         if (SecurityLevel.dominates(getRM(s).intValue(), getRM(o).intValue())){
             //allow access
             System.out.println("\nSSP allowed subj " + s +  " with level " + getRM(s) + " to read " + o +  " with level " + getRM(o) + "\n");
-            //Tell ObectManager what to do
-            //ObjectManager.read(s, o);
+
+            //Tell ObectManager what to do**********************************
+            //new ObjectManager().read(subjMap.get(s), objMap.get(o));
         }
         else {
             System.out.println("This instruction violates SSP");
@@ -172,9 +163,9 @@ class ReferenceMonitor {
         // Perform requests of the ReferenceMonitor
 
         //READ assign Subject.TEMP new value
-        // public void read(String s, String o){
-        //     s.TEMP = o.currentValue;
-        // }
+        public void read(Subject s, SecureObject o){
+            s.temp = o.currentValue;
+        }
 
         //WRITE assign SecureObject.currentValue new value
 
@@ -188,35 +179,46 @@ class ReferenceMonitor {
 //Top level class
 class SecureSystem {
 
+    public static HashMap<String, Subject> subjMap = new HashMap<String, Subject>();
+    public static HashMap<String, SecureObject> objMap = new HashMap<String, SecureObject>();
+
     public static void main(String[] args) throws IOException{
-        Scanner inFile = new Scanner(new FileReader("instructionList.txt"));
+    	Scanner inFile = new Scanner(new FileReader("instructionList.txt"));
 
         int low  = SecurityLevel.LOW;
         int high = SecurityLevel.HIGH;
 
         ReferenceMonitor rm = new ReferenceMonitor();
 
+
+
+
         //Make subjects known the the secure system
         Subject lyle = new Subject();
         lyle.createSubject("lyle", low);
         //System.out.println("\nCreated subject = " + lyle.name + " " + lyle.level + "\n");
         rm.updateRM("lyle", low);
+        subjMap.put("lyle", lyle);
 
         Subject hal = new Subject();
         hal.createSubject("hal", high);
         //System.out.println("Created subject = " + hal.name + " " + hal.level + "\n");
         rm.updateRM("hal", high);
+        subjMap.put("hal", hal);
 
         //Make objects known to the secure system
         SecureObject lobj = new SecureObject();
         lobj.createNewObject("lobj", low);
         //System.out.println("Created object = " + lobj.name + " " + lobj.level + "\n");
         rm.updateRM("lobj", low);
+        objMap.put("lobj", lobj);
 
         SecureObject hobj = new SecureObject();
         hobj.createNewObject("hobj", high);
         //System.out.println("Created object = " + hobj.name + " " + hobj.level + "\n");
         rm.updateRM("hobj", high);
+        objMap.put("hobj", hobj);
+
 
 
         //Instructions are parsed from the list
@@ -233,7 +235,8 @@ class SecureSystem {
             //    bio.set(instruObj)
 
             //if (type != BAD)
-            rm.monitorInstruction(instrObj);
+            rm.monitorInstruction(instrObj, subjMap, objMap);
+
 
             //Print end of instruction divider
             instrObj.instrMethod();
