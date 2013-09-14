@@ -24,17 +24,14 @@ class InstructionObject {
         }
         else {
             type = "BAD";
-            System.out.println("type2 = " + type);
         }
         //If WRITE, Check fourth ele of instruction
         if (type.equals("WRITE")){
             if (tokens.length == 4){
                 value = Integer.parseInt(tokens[3]);
-                System.out.println("WRITE value = " + value);
             }
             else {
                 type = "BAD";
-                System.out.println("type3 = " + type);
             }
         }
     }
@@ -64,12 +61,12 @@ class SecurityLevel{
 }
 
 class Subject {
-    public static String name;
+    public String name;
     //temp is the value the subject most recently read
-    public static int temp;
-    public static int level;
+    public int temp;
+    public int level;
 
-    public static void createSubject(String inName, int inLevel) {
+    public Subject(String inName, int inLevel) {
         name = inName;
         //temp is initially zero
         temp = 0;
@@ -78,11 +75,11 @@ class Subject {
 }
 
 class SecureObject {
-    public static String name;
-    public static int currentValue;
-    public static int level; // NEED TO CHANGE INT!!! 
+    public String name;
+    public int currentValue;
+    public int level;
 
-    public static void createNewObject(String inName, int inLevel) {
+    public SecureObject(String inName, int inLevel) {
         //currentValue is initially zero
         currentValue = 0;
         name = inName;
@@ -94,10 +91,8 @@ class ReferenceMonitor {
     public static HashMap<String, Integer> rmMap = new HashMap<String, Integer>();
 
     //Map and arrays to associate string to Subject/SecureObject
-    public static HashMap<String, Integer> subjIndexMap = new HashMap<String, Integer>();
-    public static HashMap<String, Integer> objIndexMap = new HashMap<String, Integer>();
-    public static ArrayList<Subject> subjArray = new ArrayList<Subject>();
-    public static ArrayList<SecureObject> objArray = new ArrayList<SecureObject>();
+    public static HashMap<String, Subject> subjMap = new HashMap<String, Subject>();
+    public static HashMap<String, SecureObject> objMap = new HashMap<String, SecureObject>();
 
     public static ObjectManager objMan = new ObjectManager();
 
@@ -107,8 +102,6 @@ class ReferenceMonitor {
         System.out.println("RM set " + s + " to level " + level);
     }
     public static Integer getRM(String s) {
-        //gets integer level of subject held by the RM
-        //System.out.println("rmMap.get(" + s + ") = " + (Integer)rmMap.get(s));
         return (Integer)rmMap.get(s);
     }
 
@@ -123,7 +116,7 @@ class ReferenceMonitor {
             starProperty(instrObj.subjName, instrObj.objName, instrObj.value);
         }
         else{
-            System.out.println("Bad instruction\n");
+            System.out.println("Bad instruction");
         }
 
     }
@@ -134,23 +127,14 @@ class ReferenceMonitor {
 
         if (SecurityLevel.dominates(getRM(s).intValue(), getRM(o).intValue())){
             //allow access
-            System.out.println("SSP allowed subj " + s +  " with level " + getRM(s) + " to read " + o +  " with level " + getRM(o) + "\n");
-
-            System.out.println("SSP subjArray PRINT");
-            for(int i = 0; i < subjArray.size(); i++) {   
-                System.out.println(subjArray.get(i).name);
-            } 
+            //System.out.println("SSP allowed subj " + s +  " with level " + getRM(s) + " to read " + o +  " with level " + getRM(o) + "\n");
 
             //Tell ObectManager what to do
-            //objMan.read(subjMap.get(s), objMap.get(o));
-            Integer subjIndex = subjIndexMap.get(s);
-            System.out.println("subjIndex = " + subjIndex + " = " + subjArray.get(subjIndex).name);
-            // Integer objIndex = arrayIndexMap.get(o);
-            // System.out.println("objIndex = " + objIndex + " = " + objArray.get(objIndex).name);
-            //objMan.read(subjArray.get(subjIndex), objArray.get(objIndex));
+            objMan.read(subjMap.get(s), objMap.get(o));
 
         }
         else {
+            subjMap.get(s).temp = 0;
             System.out.println("This instruction violates SSP");
         }
     } 
@@ -161,12 +145,10 @@ class ReferenceMonitor {
 
         if (SecurityLevel.writeAccess(getRM(s).intValue(), getRM(o).intValue())){
             //allow access
-            System.out.println("*-Property allowed subj " + s +  " with level " + getRM(s) + " to write to " + o +  " with level " + getRM(o) + "\n");
-            
-            //System.out.println("write is called with " + objMap.get(o).name);
+            //System.out.println("*-Property allowed subj " + s +  " with level " + getRM(s) + " to write to " + o +  " with level " + getRM(o) + "\n");
 
             //Tell ObectManager what to do
-            //objMan.write(objMap.get(o), v);
+            objMan.write(objMap.get(o), v);
         }
         else {
             System.out.println("This instruction violates *-Property");
@@ -209,35 +191,23 @@ class SecureSystem {
 
         //====Make subjects known the the secure system
         //Lyle
-        Subject lyle = new Subject();
-        lyle.createSubject("lyle", low);
+        Subject lyle = new Subject("lyle", low);
         rm.updateRM("lyle", low);
-        rm.subjIndexMap.put("lyle", currentSubjArrayIndex);
-        currentSubjArrayIndex++;
-        rm.subjArray.add(lyle);
+        rm.subjMap.put("lyle", lyle);
         //Hal
-        Subject hal = new Subject();
-        hal.createSubject("hal", high);
+        Subject hal = new Subject("hal", high);
         rm.updateRM("hal", high);
-        rm.subjIndexMap.put("hal", currentSubjArrayIndex);
-        currentSubjArrayIndex++;
-        rm.subjArray.add(hal);
+        rm.subjMap.put("hal", hal);
 
         //====Make objects known to the secure system
         //LObj
-        SecureObject lobj = new SecureObject();
-        lobj.createNewObject("lobj", low);
+        SecureObject lobj = new SecureObject("lobj", low);
         rm.updateRM("lobj", low);
-        rm.objIndexMap.put("lobj", currentObjArrayIndex);
-        currentObjArrayIndex++;
-        rm.objArray.add(lobj);
+        rm.objMap.put("lobj", lobj);
         //HObj
-        SecureObject hobj = new SecureObject();
-        hobj.createNewObject("hobj", high);
+        SecureObject hobj = new SecureObject("hobj", high);
         rm.updateRM("hobj", high);
-        rm.objIndexMap.put("hobj", currentObjArrayIndex);
-        currentObjArrayIndex++;
-        rm.objArray.add(hobj);
+        rm.objMap.put("hobj", hobj);
 
 
 
@@ -254,13 +224,13 @@ class SecureSystem {
             
 
             System.out.println("The current state is: ");
-            System.out.println("LObj has value: " + lobj.currentValue);
-            System.out.println("HObj has value: " + hobj.currentValue);
-            System.out.println("Lyle has recently read: " + lyle.temp);
-            System.out.println("Hal has recently read: " + hal.temp);
+            System.out.println("    LObj has value: " + lobj.currentValue);
+            System.out.println("    HObj has value: " + hobj.currentValue);
+            System.out.println("    Lyle has recently read: " + lyle.temp);
+            System.out.println("    Hal has recently read: " + hal.temp);
 
             //Print end of instruction divider
-            instrObj.instrMethod();
+            //instrObj.instrMethod();
 
         }
 
