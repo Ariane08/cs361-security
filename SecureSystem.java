@@ -35,10 +35,6 @@ class InstructionObject {
             }
         }
     }
-
-    public static void instrMethod() {
-        System.out.println("=====================end of instruction=======\n");
-    }
 }
 
 class SecurityLevel{
@@ -64,26 +60,23 @@ class Subject {
     public String name;
     //temp is the value the subject most recently read
     public int temp;
-    public int level;
 
-    public Subject(String inName, int inLevel) {
+
+    public Subject(String inName) {
         name = inName;
         //temp is initially zero
         temp = 0;
-        level = inLevel;
     }
 }
 
 class SecureObject {
     public String name;
     public int currentValue;
-    public int level;
 
-    public SecureObject(String inName, int inLevel) {
+    public SecureObject(String inName) {
         //currentValue is initially zero
         currentValue = 0;
         name = inName;
-        level = inLevel;
     }
 }
 
@@ -99,7 +92,7 @@ class ReferenceMonitor {
     //RM map handling
     public static void updateRM(String s, Integer level) {
         rmMap.put(s, level);
-        System.out.println("RM set " + s + " to level " + level);
+        //System.out.println("RM set " + s + " to level " + level);
     }
     public static Integer getRM(String s) {
         return (Integer)rmMap.get(s);
@@ -107,16 +100,21 @@ class ReferenceMonitor {
 
     //=======================BLP
     public static void monitorInstruction(InstructionObject instrObj) {
-        if (instrObj.type.equals("READ")){
-            //SSP
-            ssp(instrObj.subjName, instrObj.objName) ;
+        if (subjMap.containsKey(instrObj.subjName) && objMap.containsKey(instrObj.objName)){
+            if (instrObj.type.equals("READ")){
+                //SSP
+                ssp(instrObj.subjName, instrObj.objName) ;
+            }
+            else if (instrObj.type.equals("WRITE")){
+                //*-Property
+                starProperty(instrObj.subjName, instrObj.objName, instrObj.value);
+            }
+            else{
+                System.out.println("Bad instruction");
+            }
         }
-        else if (instrObj.type.equals("WRITE")){
-            //*-Property
-            starProperty(instrObj.subjName, instrObj.objName, instrObj.value);
-        }
-        else{
-            System.out.println("Bad instruction");
+        else {
+            System.out.println("Bad instruction, unknown subject/object");
         }
 
     }
@@ -126,10 +124,7 @@ class ReferenceMonitor {
         //System.out.println("SSP get subj level as " + getRM(s) + " and object level as " + getRM(o));
 
         if (SecurityLevel.dominates(getRM(s).intValue(), getRM(o).intValue())){
-            //allow access
             //System.out.println("SSP allowed subj " + s +  " with level " + getRM(s) + " to read " + o +  " with level " + getRM(o) + "\n");
-
-            //Tell ObectManager what to do
             objMan.read(subjMap.get(s), objMap.get(o));
 
         }
@@ -144,10 +139,7 @@ class ReferenceMonitor {
         //System.out.println("*-Property get subj level as " + getRM(s) + " and object level as " + getRM(o));
 
         if (SecurityLevel.writeAccess(getRM(s).intValue(), getRM(o).intValue())){
-            //allow access
             //System.out.println("*-Property allowed subj " + s +  " with level " + getRM(s) + " to write to " + o +  " with level " + getRM(o) + "\n");
-
-            //Tell ObectManager what to do
             objMan.write(objMap.get(o), v);
         }
         else {
@@ -161,13 +153,13 @@ class ReferenceMonitor {
         //READ assign Subject.TEMP new value
         public void read(Subject s, SecureObject o){
             s.temp = o.currentValue;
-            System.out.println(s.name +" read " + o.name + " as " + o.currentValue);
+            //System.out.println(s.name +" read " + o.name + " as " + o.currentValue);
         }
 
         //WRITE assign SecureObject.currentValue new value
         public void write(SecureObject o, int value){
             o.currentValue = value;
-            System.out.println(o.name +" was written as " + value);
+            //System.out.println(o.name +" was written as " + value);
         }
     }
 
@@ -191,21 +183,21 @@ class SecureSystem {
 
         //====Make subjects known the the secure system
         //Lyle
-        Subject lyle = new Subject("lyle", low);
+        Subject lyle = new Subject("lyle");
         rm.updateRM("lyle", low);
         rm.subjMap.put("lyle", lyle);
         //Hal
-        Subject hal = new Subject("hal", high);
+        Subject hal = new Subject("hal");
         rm.updateRM("hal", high);
         rm.subjMap.put("hal", hal);
 
         //====Make objects known to the secure system
         //LObj
-        SecureObject lobj = new SecureObject("lobj", low);
+        SecureObject lobj = new SecureObject("lobj");
         rm.updateRM("lobj", low);
         rm.objMap.put("lobj", lobj);
         //HObj
-        SecureObject hobj = new SecureObject("hobj", high);
+        SecureObject hobj = new SecureObject("hobj");
         rm.updateRM("hobj", high);
         rm.objMap.put("hobj", hobj);
 
@@ -228,9 +220,6 @@ class SecureSystem {
             System.out.println("    HObj has value: " + hobj.currentValue);
             System.out.println("    Lyle has recently read: " + lyle.temp);
             System.out.println("    Hal has recently read: " + hal.temp);
-
-            //Print end of instruction divider
-            //instrObj.instrMethod();
 
         }
 
