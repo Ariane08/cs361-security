@@ -100,16 +100,21 @@ class ReferenceMonitor {
 
     //=======================BLP
     public static void monitorInstruction(InstructionObject instrObj) {
-        if (instrObj.type.equals("READ")){
-            //SSP
-            ssp(instrObj.subjName, instrObj.objName) ;
+        if (subjMap.containsKey(instrObj.subjName) && objMap.containsKey(instrObj.objName)){
+            if (instrObj.type.equals("READ")){
+                //SSP
+                ssp(instrObj.subjName, instrObj.objName) ;
+            }
+            else if (instrObj.type.equals("WRITE")){
+                //*-Property
+                starProperty(instrObj.subjName, instrObj.objName, instrObj.value);
+            }
+            else{
+                System.out.println("Bad instruction");
+            }
         }
-        else if (instrObj.type.equals("WRITE")){
-            //*-Property
-            starProperty(instrObj.subjName, instrObj.objName, instrObj.value);
-        }
-        else{
-            System.out.println("Bad instruction");
+        else {
+            System.out.println("Bad instruction, unknown subject/object");
         }
 
     }
