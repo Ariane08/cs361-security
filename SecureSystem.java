@@ -1,6 +1,7 @@
 //Secure System by Olga and Shaelyn
 import java.util.*;
 import java.io.*;
+import java.lang.*;
 
 /*InstructionObject collects data from a single instruction line
 and makes it available to the rest of the secure system */
@@ -69,10 +70,10 @@ class Subject {
     public static int temp;
     public static int level;
 
-    public static void createSubject(String inName, int inLevel) {
+    public static void createSubject(String inName, int inLevel, int t) {
         name = inName;
         //temp is initially zero
-        temp = 0;
+        temp = t;
         level = inLevel;
     }
 }
@@ -82,9 +83,9 @@ class SecureObject {
     public static int currentValue;
     public static int level; // NEED TO CHANGE INT!!! 
 
-    public static void createNewObject(String inName, int inLevel) {
+    public static void createNewObject(String inName, int inLevel, int val) {
         //currentValue is initially zero
-        currentValue = 0;
+        currentValue = val;
         name = inName;
         level = inLevel;
     }
@@ -192,26 +193,28 @@ class SecureSystem {
         //====Make subjects known the the secure system
         //Lyle
         Subject lyle = new Subject();
-        lyle.createSubject("lyle", low);
+        lyle.createSubject("lyle", low, 0);
         rm.updateRM("lyle", low);
         subjMap.put("lyle", lyle);
         //Hal
         Subject hal = new Subject();
-        hal.createSubject("hal", high);
+        hal.createSubject("hal", high, 0);
         rm.updateRM("hal", high);
         subjMap.put("hal", hal);
 
         //====Make objects known to the secure system
-        //LObj
-        SecureObject lobj = new SecureObject();
-        lobj.createNewObject("lobj", low);
-        rm.updateRM("lobj", low);
-        objMap.put("lobj", lobj);
+
         //HObj
         SecureObject hobj = new SecureObject();
-        hobj.createNewObject("hobj", high);
+        hobj.createNewObject("hobj", high, 0);
         rm.updateRM("hobj", high);
         objMap.put("hobj", hobj);
+
+        //LObj
+        SecureObject lobj = new SecureObject();
+        lobj.createNewObject("lobj", low, 0);
+        rm.updateRM("lobj", low);
+        objMap.put("lobj", lobj);
 
 
 
