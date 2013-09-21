@@ -1,5 +1,6 @@
-write Hal HObj 
-read Hal 
+CREATE Lyle newObj
+CREATE Hal newerObj
 write Lyle LObj 10
 read Hal LObj 
 write Lyle HObj 20
+write Hal LObj 200
