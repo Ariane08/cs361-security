@@ -278,6 +278,8 @@ class CovertChannel {
                 for (int i = 0; i < bitsRead.length(); i++) {
                     System.out.print("bitsToByte[i] = " + bitsToByte[i]+ "\n");
                 }
+                // need to conevert array of bits to char or string to write it to a file
+
 
                 //result = Arrays.toString(bitsToByte).replace(", ", "");
                 // result = (int)bitsToByte;
