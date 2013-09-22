@@ -121,7 +121,7 @@ class ReferenceMonitor {
             }
             else if (instrObj.type.equals("DESTROY")){
                 // eliminates an object if the Securesubject has right access and object exists
-                // if (objMan.objMap.containsValue(instrObj.objName)) //&& SecurityLevel.writeAccess(subjMap.get(instrObj.subjName).level, objMan.objMap.get(instrObj.objName).level)){
+                // if (objMan.objMap.containsValue(instrObj.objName) && SecurityLevel.writeAccess(subjMap.get(instrObj.subjName).level, objMan.objMap.get(instrObj.objName).level)){
                 //     objMan.destroy(subjMap.get(instrObj.subjName), instrObj.objName);
                 // }
                 // if (objMan.objMap.containsValue(instrObj.objName)) {
