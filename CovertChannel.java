@@ -224,7 +224,8 @@ class CovertChannel {
 
 
     public static void main(String[] args) throws IOException{
-        Scanner inFile = new Scanner(new FileReader("instructionList.txt"));
+        //Scanner inFile = new Scanner(new FileReader("instructionList.txt"));
+        File inFile1 = new File("instructionList.txt");
 
         int low  = SecurityLevel.LOW;
         int high = SecurityLevel.HIGH;
@@ -253,20 +254,37 @@ class CovertChannel {
         rm.objMan.objMap.put("hobj", hobj);
 
 
+        InputStream inStream = new FileInputStream(inFile1);
+        int fileSize = (int)inFile1.length();
+        //byte[] bArray = new byte[fileSize];
+
+        int byteRead = 0;
+        String bitsRead = "";
+        while (inStream.read() != -1) {
+            byteRead = inStream.read();
+            byte b =(byte)byteRead;
+            if (b != -1) 
+                bitsRead = String.format("%8s", Integer.toBinaryString(b)).replace(' ', '0');
+
+            System.out.println("byte read as a byte = " + b);
+            System.out.println("binary string = " + bitsRead);
+        }
+        //ByteArrayInputStream bins = new ByteArrayInputStream(blob);
+
 
         //Instructions are parsed from the list
-        String s;
-        while(inFile.hasNext()){
-            s = inFile.nextLine();
-            //Print line of input
-            System.out.println("\nInstruction line = " + s);
-            InstructionObject instrObj = new InstructionObject();
-            instrObj.assignObjElements(s);
+        // String s;
+        // while(inFile.hasNext()){
+        //     s = inFile.nextLine();
+        //     //Print line of input
+        //     System.out.println("\nInstruction line = " + s);
+        //     InstructionObject instrObj = new InstructionObject();
+        //     instrObj.assignObjElements(s);
 
-            rm.monitorInstruction(instrObj);
-            //printState(lobj, hobj, lyle, hal);
+        //     rm.monitorInstruction(instrObj);
+        //     //printState(lobj, hobj, lyle, hal);
 
-        }
+        // }
 
         System.out.println("\nSecureSystem!\n");
 
