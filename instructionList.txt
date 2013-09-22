@@ -1,5 +1,7 @@
 CREATE Lyle newObj
 CREATE Hal newerObj
+DESTROY Hal newerObj
+DESTROY Lyle newObj
 write Lyle LObj 10
 read Hal LObj 
 write Lyle HObj 20

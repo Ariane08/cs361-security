@@ -77,11 +77,13 @@ class SecureSubject {
 class SecureObject {
     public String name;
     public int currentValue;
+    public int level;
 
-    public SecureObject(String inName) {
+    public SecureObject(String inName, int l) {
         //currentValue is initially zero
         currentValue = 0;
         name = inName;
+        level = l;
     }
 }
 
@@ -108,7 +110,7 @@ class ReferenceMonitor {
             }
             else if (instrObj.type.equals("WRITE")){
                 //*-Property
-                executeWrite(instrObj.subjName, instrObj.objName, instrObj.value);
+                starProperty(instrObj.subjName, instrObj.objName, instrObj.value);
             }
             else if (instrObj.type.equals("CREATE")){
                 // new objects added with security level equal to the level of creating Securesubject
@@ -119,7 +121,14 @@ class ReferenceMonitor {
             }
             else if (instrObj.type.equals("DESTROY")){
                 // eliminates an object if the Securesubject has right access and object exists
-
+                // if (objMan.objMap.containsValue(instrObj.objName)) //&& SecurityLevel.writeAccess(subjMap.get(instrObj.subjName).level, objMan.objMap.get(instrObj.objName).level)){
+                //     objMan.destroy(subjMap.get(instrObj.subjName), instrObj.objName);
+                // }
+                // if (objMan.objMap.containsValue(instrObj.objName)) {
+                //     System.out.println("objMap contains " + instrObj.objName);
+                // } 
+                System.out.println("objMan.objMap.containsValue( " + instrObj.objName + ") = " + objMan.objMap.containsValue(instrObj.objName) + "\n");
+                System.out.println("Curren state of objMap in DESTROY " + objMan.objMap.entrySet() + "\n");
             }
             else if (instrObj.type.equals("RUN")){
 
@@ -150,7 +159,7 @@ class ReferenceMonitor {
     } 
 
     //WRITE = *-Property
-    public static void executeWrite(String s, String o, int v) {
+    public static void starProperty(String s, String o, int v) {
         //System.out.println("*-Property get subj level as " + getRM(s) + " and object level as " + getRM(o));
 
         if (SecurityLevel.writeAccess(getRM(s).intValue(), getRM(o).intValue())){
@@ -179,18 +188,18 @@ class ReferenceMonitor {
         }
 
         public void create(SecureSubject s, String o){
-            SecureObject so = new SecureObject(o);
+            SecureObject so = new SecureObject(o, s.level);
             //Update rmMap to map stringName to int level of Securesubject
             updateRM(o, s.level);
             //update objMap to map stringName to newSecureObject
             objMap.put(o, so);
             System.out.println(s.name +" created " + o + " with level " + getRM(s.name));
-            //System.out.println("Curren state of objMap " + objMap.entrySet() + "\n");
+            System.out.println("Curren state of objMap " + objMap.entrySet() + "\n");
         }
         
-        public void destroy(SecureSubject s, SecureObject o){
-            //s.temp = o.currentValue;
-            //System.out.println(s.name +" read " + o.name + " as " + o.currentValue);
+        public void destroy(SecureSubject s, String o){
+
+            System.out.println(s.name +" destroyed " + o);
         }
     }
 
@@ -232,11 +241,11 @@ class CovertChannel {
 
         //====Make objects known to the secure system
         //LObj
-        SecureObject lobj = new SecureObject("lobj");
+        SecureObject lobj = new SecureObject("lobj", low);
         rm.updateRM("lobj", low);
         rm.objMan.objMap.put("lobj", lobj);
         //HObj
-        SecureObject hobj = new SecureObject("hobj");
+        SecureObject hobj = new SecureObject("hobj", high);
         rm.updateRM("hobj", high);
         rm.objMan.objMap.put("hobj", hobj);
 
