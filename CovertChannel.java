@@ -114,21 +114,18 @@ class ReferenceMonitor {
             }
             else if (instrObj.type.equals("CREATE")){
                 // new objects added with security level equal to the level of creating Securesubject
-                if (!objMan.objMap.containsValue(instrObj.objName)){
+                if (!objMan.objMap.containsKey(instrObj.objName)){
                     objMan.create(subjMap.get(instrObj.subjName), instrObj.objName);
                 }
                 //else = no-op
             }
             else if (instrObj.type.equals("DESTROY")){
                 // eliminates an object if the Securesubject has right access and object exists
-                // if (objMan.objMap.containsValue(instrObj.objName)) //&& SecurityLevel.writeAccess(subjMap.get(instrObj.subjName).level, objMan.objMap.get(instrObj.objName).level)){
-                //     objMan.destroy(subjMap.get(instrObj.subjName), instrObj.objName);
-                // }
-                // if (objMan.objMap.containsValue(instrObj.objName)) {
-                //     System.out.println("objMap contains " + instrObj.objName);
-                // } 
-                System.out.println("objMan.objMap.containsValue( " + instrObj.objName + ") = " + objMan.objMap.containsValue(instrObj.objName) + "\n");
-                System.out.println("Curren state of objMap in DESTROY " + objMan.objMap.entrySet() + "\n");
+                if (objMan.objMap.containsKey(instrObj.objName) && SecurityLevel.writeAccess(subjMap.get(instrObj.subjName).level, objMan.objMap.get(instrObj.objName).level)){
+                    objMan.destroy(subjMap.get(instrObj.subjName), instrObj.objName);
+                }
+                //System.out.println("Curren state of objMap in DESTROY " + objMan.objMap.entrySet() + "\n");
+                //else = no-op
             }
             else if (instrObj.type.equals("RUN")){
 
@@ -198,6 +195,12 @@ class ReferenceMonitor {
         }
         
         public void destroy(SecureSubject s, String o){
+            //update rmMap to not include destroyed object
+            //System.out.println("Initial state of objMap before DESTROY of " + o + " = " + objMap.entrySet() + "\n");
+            rmMap.remove(o);
+            //update objMap to not include destroyed object
+            objMap.remove(o);
+            //System.out.println("Curren state of objMap after DESTROY of " + o + " = " + objMap.entrySet() + "\n");
 
             System.out.println(s.name +" destroyed " + o);
         }
@@ -261,7 +264,7 @@ class CovertChannel {
             instrObj.assignObjElements(s);
 
             rm.monitorInstruction(instrObj);
-            printState(lobj, hobj, lyle, hal);
+            //printState(lobj, hobj, lyle, hal);
 
         }
 
