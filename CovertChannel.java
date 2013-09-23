@@ -72,6 +72,48 @@ class SecureSubject {
         temp = 0;
         level = l;
     }
+
+    // public HGenerateInstr(int parsedInt){
+    //     if (parsedInt == 1){
+    //         // RUN Hal
+    //         InstructionObject instrObj = new InstructionObject();
+    //         instrObj.assignObjElements("RUN HAL");
+    //         rm.monitorInstruction(instrObj);
+    //     }
+    //     else{
+    //         // RUN
+    //         // CREATE
+    //         InstructionObject instrObj = new InstructionObject();
+    //         instrObj.assignObjElements("RUN HAL");
+    //         rm.monitorInstruction(instrObj);
+
+    //         InstructionObject instrObj = new InstructionObject();
+    //         instrObj.assignObjElements("CREATE HAL OBJ");
+    //         rm.monitorInstruction(instrObj);
+    //     }
+    // }
+
+    // public LGenerateInstr(){
+    //     InstructionObject instrObj = new InstructionObject();
+    //     instrObj.assignObjElements("CREATE LYLE OBJ");
+    //     rm.monitorInstruction(instrObj);
+
+    //     InstructionObject instrObj = new InstructionObject();
+    //     instrObj.assignObjElements("WRITE LYLE OBJ 1");
+    //     rm.monitorInstruction(instrObj);
+
+    //     InstructionObject instrObj = new InstructionObject();
+    //     instrObj.assignObjElements("READ LYLE OBJ");
+    //     rm.monitorInstruction(instrObj);
+
+    //     InstructionObject instrObj = new InstructionObject();
+    //     instrObj.assignObjElements("DESTROY LYLE OBJ");
+    //     rm.monitorInstruction(instrObj);
+
+    //     InstructionObject instrObj = new InstructionObject();
+    //     instrObj.assignObjElements("RUN LYLE");
+    //     rm.monitorInstruction(instrObj);
+    // }
 }
 
 class SecureObject {
@@ -128,6 +170,7 @@ class ReferenceMonitor {
                 //else = no-op
             }
             else if (instrObj.type.equals("RUN")){
+                
 
             }
             else{
@@ -287,6 +330,11 @@ class CovertChannel {
                 //***Need to do this before communicating to LowSubject
                 for (int i = 0; i < bitsRead.length(); i++) {
                     parsedInt = Character.getNumericValue(bitsRead.charAt(i));
+
+                    // sending bit by Hal kickoff
+                    // call generator of instruction for Hal
+                    // call generator of instruction for Lyle (always the same)
+
                     System.out.println("single parsed int = " + parsedInt);
                     bitsToByte[i] = parsedInt;
                 }
