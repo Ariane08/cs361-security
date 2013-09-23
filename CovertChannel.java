@@ -226,6 +226,12 @@ class CovertChannel {
     public static void main(String[] args) throws IOException{
         File inFile1 = new File("instructionList.txt");
 
+        //if args[0] == "v"
+            //then args[1] is a filename
+        //else is a file name
+
+
+
         int low  = SecurityLevel.LOW;
         int high = SecurityLevel.HIGH;
 
@@ -253,33 +259,47 @@ class CovertChannel {
         rm.objMan.objMap.put("hobj", hobj);
 
 
-        InputStream inStream = new FileInputStream(inFile1);
+        FileInputStream fis = new FileInputStream(inFile1);
+        Reader isr = new InputStreamReader(fis, "US-ASCII");
+
+        //FileReader inStream = new FileReader(inFile1);
         int fileSize = (int)inFile1.length();
         int[] bitsToByte = new int[8];
         String writeString = "";
-        int byteRead = 0;
+        int initInt = 0;
         String bitsRead = "";
         int parsedInt = 0;
         int result = 0;
-        while (inStream.read() != -1) {
-            System.out.println("\n New byte read from file_________");
-            byteRead = inStream.read();
-            byte b =(byte)byteRead;
-            if (b != -1){ 
+        char charRead = 'a';
+        char charWrite = 'a';
+        //while collects individual bytes from the input file
+        while ((initInt = isr.read()) != -1) {
+            //*System.out.println("\n New byte read from file_________");
+            byte b =(byte)initInt;
+            charRead = (char)(initInt & 0xFF);
+            System.out.print(charRead);
+            if (b != -1){
+                //bitsRead = string version of a byte from the input file 
                 bitsRead = String.format("%8s", Integer.toBinaryString(b)).replace(' ', '0');
+                //Parse the string of bits from the byte
                 for (int i = 0; i < bitsRead.length(); i++) {
                     parsedInt = Character.getNumericValue(bitsRead.charAt(i));
-                    System.out.println("single parsed int = " + parsedInt);
+                    //System.out.println("single parsed int = " + parsedInt);
                     bitsToByte[i] = parsedInt;
                 }
             
 
-                System.out.println("byte read as int = " + b);
-                for (int i = 0; i < bitsRead.length(); i++) {
-                    System.out.print("bitsToByte[i] = " + bitsToByte[i]+ "\n");
-                }
+                //*System.out.println("byte read as int = " + b);
+                // for (int i = 0; i < bitsRead.length(); i++) {
+                //     System.out.print("bitsToByte[i] = " + bitsToByte[i]+ "\n");
+
+                // }
                 // need to conevert array of bits to char or string to write it to a file
 
+                byte numberByte = (byte) Integer.parseInt(bitsRead, 2); // mode 2 = binary
+                charWrite = (char)numberByte;
+                //*System.out.print(charWrite);
+                //*System.out.println("numberByte should  equal num as int = " + numberByte);
 
                 //result = Arrays.toString(bitsToByte).replace(", ", "");
                 // result = (int)bitsToByte;
