@@ -274,43 +274,29 @@ class CovertChannel {
         char charWrite = 'a';
         //while collects individual bytes from the input file
         while ((initInt = isr.read()) != -1) {
-            //*System.out.println("\n New byte read from file_________");
+            System.out.println("\n New byte read from file_________");
             byte b =(byte)initInt;
             charRead = (char)(initInt & 0xFF);
-            System.out.print(charRead);
+            System.out.print("initial char read from file = " + charRead + "\n");
+            System.out.println("init char read as int = " + b);
             if (b != -1){
                 //bitsRead = string version of a byte from the input file 
                 bitsRead = String.format("%8s", Integer.toBinaryString(b)).replace(' ', '0');
-                //Parse the string of bits from the byte
+                System.out.println("bits of byte read = " + bitsRead);
+                //***Parse the string of bits from the byte
+                //***Need to do this before communicating to LowSubject
                 for (int i = 0; i < bitsRead.length(); i++) {
                     parsedInt = Character.getNumericValue(bitsRead.charAt(i));
-                    //System.out.println("single parsed int = " + parsedInt);
+                    System.out.println("single parsed int = " + parsedInt);
                     bitsToByte[i] = parsedInt;
                 }
-            
-
-                //*System.out.println("byte read as int = " + b);
-                // for (int i = 0; i < bitsRead.length(); i++) {
-                //     System.out.print("bitsToByte[i] = " + bitsToByte[i]+ "\n");
-
-                // }
-                // need to conevert array of bits to char or string to write it to a file
-
+    
                 byte numberByte = (byte) Integer.parseInt(bitsRead, 2); // mode 2 = binary
                 charWrite = (char)numberByte;
-                //*System.out.print(charWrite);
+                System.out.print("byte coverted back to char after processing = " + charWrite + "\n");
                 //*System.out.println("numberByte should  equal num as int = " + numberByte);
-
-                //result = Arrays.toString(bitsToByte).replace(", ", "");
-                // result = (int)bitsToByte;
-                // System.out.println("RESULT STRING = " + result + "\n");
-
+            }
         }
-
-
-        }
-
-
 
         System.out.println("\nSecureSystem!\n");
 
