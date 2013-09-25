@@ -16,7 +16,7 @@ class InstructionObject {
 
         
         type = tokens[0].toUpperCase();
-        System.out.println("InstructionObject type is received as = " + type);
+        //System.out.println("InstructionObject type is received as = " + type);
         if (!type.equals("WRITE") && !type.equals("READ") && !type.equals("CREATE") && !type.equals("DESTROY") && !type.equals("RUN")){
             type = "BAD";
         }
@@ -33,7 +33,7 @@ class InstructionObject {
                 type = "BAD";
             }
         }
-        System.out.println("InstructionObject type is output as = " + type);
+        //System.out.println("InstructionObject type is output as = " + type);
 
     }
 }
@@ -62,7 +62,7 @@ class SecureSubject {
     //temp is the value the Securesubject most recently read
     public int temp;
     public int level;
-
+    String lowSubStr = "";
 
     public SecureSubject(String inName, int l) {
         name = inName;
@@ -114,6 +114,17 @@ class SecureSubject {
         InstructionObject instrObj4 = new InstructionObject();
         instrObj4.assignObjElements("RUN LYLE");
         rm.monitorInstruction(instrObj4);
+    }
+
+    public void readBits(int bit){
+        lowSubStr = lowSubStr.concat(String.valueOf(bit));
+        System.out.println("lowSubStr = " + lowSubStr);
+        if (lowSubStr.length() == 8){
+            byte numberByte = (byte) Integer.parseInt(lowSubStr, 2); // mode 2 = binary
+            char charWrite = (char)numberByte;
+            System.out.println("***************Char read = " + charWrite);
+            lowSubStr = "";
+        }
     }
 }
 
@@ -173,7 +184,11 @@ class ReferenceMonitor {
             else if (instrObj.type.equals("RUN")){
                 //check level of subject to run
                 SecureSubject sub = subjMap.get(instrObj.subjName);
-                System.out.println("Subject level in run = " + sub.level);
+                //System.out.println("Subject level in run = " + sub.level);
+                if (sub.level == 1){
+                    System.out.println("Lyle read " + sub.temp);
+                    sub.readBits(sub.temp);
+                }
 
             }
             else{
@@ -294,16 +309,6 @@ class CovertChannel {
         rm.updateRM("hal", high);
         rm.subjMap.put("hal", hal);
 
-        //====****************************Make objects known to the secure system
-        //LObj
-        SecureObject lobj = new SecureObject("lobj", low);
-        rm.updateRM("lobj", low);
-        rm.objMan.objMap.put("lobj", lobj);
-        //HObj
-        SecureObject hobj = new SecureObject("hobj", high);
-        rm.updateRM("hobj", high);
-        rm.objMan.objMap.put("hobj", hobj);
-
 
         FileInputStream fis = new FileInputStream(inFile1);
         Reader isr = new InputStreamReader(fis, "US-ASCII");
@@ -318,7 +323,7 @@ class CovertChannel {
         char charWrite = 'a';
         //while collects individual bytes from the input file
         while ((initInt = isr.read()) != -1) {
-            System.out.println("\n New byte read from file_________");
+            //System.out.println("\n New byte read from file_________");
             byte b =(byte)initInt;
             charRead = (char)(initInt & 0xFF);
             //System.out.print("initial char read from file = " + charRead + "\n");
@@ -326,7 +331,7 @@ class CovertChannel {
             if (b != -1){
                 //bitsRead = string version of a byte from the input file 
                 bitsRead = String.format("%8s", Integer.toBinaryString(b)).replace(' ', '0');
-                System.out.println("bits of byte read = " + bitsRead);
+                //System.out.println("bits of byte read = " + bitsRead);
                 //***Parse the string of bits from the byte
                 //***Need to do this before communicating to LowSubject
                 for (int i = 0; i < bitsRead.length(); i++) {
@@ -336,19 +341,20 @@ class CovertChannel {
                     hal.HGenerateInstr(parsedInt, rm);
                     // call generator of instruction for Hal
                     // call generator of instruction for Lyle (always the same)
+                    lyle.LGenerateInstr(rm);
 
                     System.out.println("single parsed int = " + parsedInt + "\n====================");
                     bitsToByte[i] = parsedInt;
                 }
     
-                byte numberByte = (byte) Integer.parseInt(bitsRead, 2); // mode 2 = binary
-                charWrite = (char)numberByte;
+                // byte numberByte = (byte) Integer.parseInt(bitsRead, 2); // mode 2 = binary
+                // charWrite = (char)numberByte;
                 //System.out.print("byte coverted back to char after processing = " + charWrite + "\n");
                 //*System.out.println("numberByte should  equal num as int = " + numberByte);
             }
         }
 
-        System.out.println("\nSecureSystem!\n");
+        System.out.println("\nCovertChannel!\n");
 
     }
 }
