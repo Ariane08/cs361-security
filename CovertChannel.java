@@ -85,7 +85,7 @@ class SecureSubject {
             bw.write(instruction.concat("\n"));
             instrObj1.assignObjElements(instruction);
             rm.monitorInstruction(instrObj1);
-            System.out.println("Hal communicated a 1 over CovertChannel");
+            //System.out.println("Hal communicated a 1 over CovertChannel");
         }
         else{
             InstructionObject instrObj2 = new InstructionObject();
@@ -99,7 +99,7 @@ class SecureSubject {
             bw.write(instruction.concat("\n"));
             instrObj3.assignObjElements(instruction);
             rm.monitorInstruction(instrObj3);
-            System.out.println("Hal communicated a 0 over CovertChannel");
+            //System.out.println("Hal communicated a 0 over CovertChannel");
         }
     }
 
@@ -137,14 +137,14 @@ class SecureSubject {
 
     public void readBits(int bit) throws IOException{
         lowSubStr = lowSubStr.concat(String.valueOf(bit));
-        System.out.println("lowSubStr = " + lowSubStr);
+        //System.out.println("lowSubStr = " + lowSubStr);
         if (lowSubStr.length() == 8){
             byte numberByte = (byte) Integer.parseInt(lowSubStr, 2); // mode 2 = binary
             char charWrite = (char)numberByte;
-            System.out.println("***************Char read = " + charWrite);
+            //System.out.println("***************Char read = " + charWrite);
             lowSubStr = "";
             bwCovert.write(Character.toString(charWrite));
-            System.out.println("Tried to write char to file " + Character.toString(charWrite) + "!!!!!!!!!!!!!!!!!!!");
+            //System.out.println("Tried to write char to file " + Character.toString(charWrite) + "!!!!!!!!!!!!!!!!!!!");
         }
     }
 }
@@ -205,7 +205,7 @@ class ReferenceMonitor {
                 SecureSubject sub = subjMap.get(instrObj.subjName);
                 //System.out.println("Subject level in run = " + sub.level);
                 if (sub.level == 1){
-                    System.out.println("Lyle read " + sub.temp);
+                    //System.out.println("Lyle read " + sub.temp);
                     sub.readBits(sub.temp);
                 }
             }
@@ -260,7 +260,7 @@ class ReferenceMonitor {
             updateRM(o, s.level);
             //update objMap to map stringName to newSecureObject
             objMap.put(o, so);
-            System.out.println(s.name +" created " + o + " with level " + getRM(s.name));
+            //System.out.println(s.name +" created " + o + " with level " + getRM(s.name));
         }
         
         public void destroy(SecureSubject s, String o){
@@ -268,7 +268,7 @@ class ReferenceMonitor {
             rmMap.remove(o);
             //update objMap to not include destroyed object
             objMap.remove(o);
-            System.out.println(s.name +" destroyed " + o);
+            //System.out.println(s.name +" destroyed " + o);
         }
     }
 
@@ -279,6 +279,8 @@ class CovertChannel {
 
     public static Integer currentSubjArrayIndex = 0;
     public static Integer currentObjArrayIndex = 0;
+    public static File inFile1;
+    public static boolean vPresent = false;
 
     public static void printState(SecureObject lobj, SecureObject hobj, SecureSubject lyle, SecureSubject hal){
         System.out.println("The current state is: ");
@@ -290,11 +292,17 @@ class CovertChannel {
 
 
     public static void main(String[] args) throws IOException{
-        File inFile1 = new File("instructionList.txt");
 
-        //if args[0] == "v"
-            //then args[1] is a filename
-        //else is a file name
+        if (args[0].equals("v")){
+            System.out.println("args[0] = " + args[0]);
+            inFile1 = new File(args[1]);
+            System.out.println("args[1] = " + args[1]);
+            vPresent = true;
+        }
+        else{
+            inFile1 = new File(args[0]);
+            System.out.println("args[0] = " + args[0]);
+        }
 
 
 
@@ -342,11 +350,11 @@ class CovertChannel {
                 
                 for (int i = 0; i < bitsRead.length(); i++) {
                     parsedInt = Character.getNumericValue(bitsRead.charAt(i));
-                    System.out.println("single parsed int = " + parsedInt);
+                    //System.out.println("single parsed int = " + parsedInt);
                     hal.HGenerateInstr(parsedInt, rm, bw);
                     lyle.LGenerateInstr(rm, bw);
 
-                    System.out.println("===================");
+                    //System.out.println("===================");
                 }
             }
         }
