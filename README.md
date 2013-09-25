@@ -34,3 +34,4 @@ L1i cache:             32K
 L2 cache:              256K
 L3 cache:              8192K
 NUMA node0 CPU(s):     0-7
+
