@@ -85,3 +85,5 @@ Bandwidth = 421279.5186027739 bits/second
 
 
 Average Bandwidth = 417358.9998 bits/second
+
+========Our covert channel's average bandwidth of text files is 386123.4394 bits/second========
