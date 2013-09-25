@@ -14,18 +14,16 @@ class InstructionObject {
         String delim = " ";
         String[] tokens = s.split(delim);
 
-        if (tokens.length == 3 || tokens.length == 4){
-            type = tokens[0].toUpperCase();
-            if (!type.equals("WRITE") && !type.equals("READ") && !type.equals("CREATE") && !type.equals("DESTROY") && !type.equals("RUN")){
-                type = "BAD";
-            }
-            subjName = tokens[1].toLowerCase();
-            if (!type.equals("RUN"))
-                objName = tokens[2].toLowerCase();      
-        }
-        else {
+        
+        type = tokens[0].toUpperCase();
+        System.out.println("InstructionObject type is received as = " + type);
+        if (!type.equals("WRITE") && !type.equals("READ") && !type.equals("CREATE") && !type.equals("DESTROY") && !type.equals("RUN")){
             type = "BAD";
         }
+        subjName = tokens[1].toLowerCase();
+        if (!type.equals("RUN"))
+            objName = tokens[2].toLowerCase();      
+        
         //If WRITE, Check fourth ele of instruction
         if (type.equals("WRITE")){
             if (tokens.length == 4){
@@ -35,7 +33,7 @@ class InstructionObject {
                 type = "BAD";
             }
         }
-
+        System.out.println("InstructionObject type is output as = " + type);
 
     }
 }
@@ -73,47 +71,50 @@ class SecureSubject {
         level = l;
     }
 
-    // public HGenerateInstr(int parsedInt){
-    //     if (parsedInt == 1){
-    //         // RUN Hal
-    //         InstructionObject instrObj = new InstructionObject();
-    //         instrObj.assignObjElements("RUN HAL");
-    //         rm.monitorInstruction(instrObj);
-    //     }
-    //     else{
-    //         // RUN
-    //         // CREATE
-    //         InstructionObject instrObj = new InstructionObject();
-    //         instrObj.assignObjElements("RUN HAL");
-    //         rm.monitorInstruction(instrObj);
+    public void HGenerateInstr(int parsedInt, ReferenceMonitor rm){
+        if (parsedInt == 1){
+            InstructionObject instrObj0 = new InstructionObject();
+            instrObj0.assignObjElements("RUN HAL");
+            rm.monitorInstruction(instrObj0);
 
-    //         InstructionObject instrObj = new InstructionObject();
-    //         instrObj.assignObjElements("CREATE HAL OBJ");
-    //         rm.monitorInstruction(instrObj);
-    //     }
-    // }
+            InstructionObject instrObj1 = new InstructionObject();
+            instrObj1.assignObjElements("DESTROY HAL OBJ");
+            rm.monitorInstruction(instrObj1);
+            System.out.println("Hal communicated a 1 over CovertChannel");
+        }
+        else{
+            InstructionObject instrObj2 = new InstructionObject();
+            instrObj2.assignObjElements("RUN HAL");
+            rm.monitorInstruction(instrObj2);
 
-    // public LGenerateInstr(){
-    //     InstructionObject instrObj = new InstructionObject();
-    //     instrObj.assignObjElements("CREATE LYLE OBJ");
-    //     rm.monitorInstruction(instrObj);
+            InstructionObject instrObj3 = new InstructionObject();
+            instrObj3.assignObjElements("CREATE HAL OBJ");
+            rm.monitorInstruction(instrObj3);
+            System.out.println("Hal communicated a 0 over CovertChannel");
+        }
+    }
 
-    //     InstructionObject instrObj = new InstructionObject();
-    //     instrObj.assignObjElements("WRITE LYLE OBJ 1");
-    //     rm.monitorInstruction(instrObj);
+    public void LGenerateInstr(ReferenceMonitor rm){
+        InstructionObject instrObj0 = new InstructionObject();
+        instrObj0.assignObjElements("CREATE LYLE OBJ");
+        rm.monitorInstruction(instrObj0);
 
-    //     InstructionObject instrObj = new InstructionObject();
-    //     instrObj.assignObjElements("READ LYLE OBJ");
-    //     rm.monitorInstruction(instrObj);
+        InstructionObject instrObj1 = new InstructionObject();
+        instrObj1.assignObjElements("WRITE LYLE OBJ 1");
+        rm.monitorInstruction(instrObj1);
 
-    //     InstructionObject instrObj = new InstructionObject();
-    //     instrObj.assignObjElements("DESTROY LYLE OBJ");
-    //     rm.monitorInstruction(instrObj);
+        InstructionObject instrObj2 = new InstructionObject();
+        instrObj2.assignObjElements("READ LYLE OBJ");
+        rm.monitorInstruction(instrObj2);
 
-    //     InstructionObject instrObj = new InstructionObject();
-    //     instrObj.assignObjElements("RUN LYLE");
-    //     rm.monitorInstruction(instrObj);
-    // }
+        InstructionObject instrObj3 = new InstructionObject();
+        instrObj3.assignObjElements("DESTROY LYLE OBJ");
+        rm.monitorInstruction(instrObj3);
+
+        InstructionObject instrObj4 = new InstructionObject();
+        instrObj4.assignObjElements("RUN LYLE");
+        rm.monitorInstruction(instrObj4);
+    }
 }
 
 class SecureObject {
@@ -170,11 +171,13 @@ class ReferenceMonitor {
                 //else = no-op
             }
             else if (instrObj.type.equals("RUN")){
-                
+                //check level of subject to run
+                SecureSubject sub = subjMap.get(instrObj.subjName);
+                System.out.println("Subject level in run = " + sub.level);
 
             }
             else{
-                System.out.println("Bad instruction");
+                System.out.println("Bad instruction " + instrObj.type + " from " + instrObj.subjName);
             }
         }
         else {
@@ -291,7 +294,7 @@ class CovertChannel {
         rm.updateRM("hal", high);
         rm.subjMap.put("hal", hal);
 
-        //====Make objects known to the secure system
+        //====****************************Make objects known to the secure system
         //LObj
         SecureObject lobj = new SecureObject("lobj", low);
         rm.updateRM("lobj", low);
@@ -304,8 +307,6 @@ class CovertChannel {
 
         FileInputStream fis = new FileInputStream(inFile1);
         Reader isr = new InputStreamReader(fis, "US-ASCII");
-
-        //FileReader inStream = new FileReader(inFile1);
         int fileSize = (int)inFile1.length();
         int[] bitsToByte = new int[8];
         String writeString = "";
@@ -320,8 +321,8 @@ class CovertChannel {
             System.out.println("\n New byte read from file_________");
             byte b =(byte)initInt;
             charRead = (char)(initInt & 0xFF);
-            System.out.print("initial char read from file = " + charRead + "\n");
-            System.out.println("init char read as int = " + b);
+            //System.out.print("initial char read from file = " + charRead + "\n");
+            //System.out.println("init char read as int = " + b);
             if (b != -1){
                 //bitsRead = string version of a byte from the input file 
                 bitsRead = String.format("%8s", Integer.toBinaryString(b)).replace(' ', '0');
@@ -332,16 +333,17 @@ class CovertChannel {
                     parsedInt = Character.getNumericValue(bitsRead.charAt(i));
 
                     // sending bit by Hal kickoff
+                    hal.HGenerateInstr(parsedInt, rm);
                     // call generator of instruction for Hal
                     // call generator of instruction for Lyle (always the same)
 
-                    System.out.println("single parsed int = " + parsedInt);
+                    System.out.println("single parsed int = " + parsedInt + "\n====================");
                     bitsToByte[i] = parsedInt;
                 }
     
                 byte numberByte = (byte) Integer.parseInt(bitsRead, 2); // mode 2 = binary
                 charWrite = (char)numberByte;
-                System.out.print("byte coverted back to char after processing = " + charWrite + "\n");
+                //System.out.print("byte coverted back to char after processing = " + charWrite + "\n");
                 //*System.out.println("numberByte should  equal num as int = " + numberByte);
             }
         }
