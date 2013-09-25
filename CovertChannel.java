@@ -317,15 +317,19 @@ class CovertChannel {
             inFile1 = new File(args[0]);
             System.out.println("args[0] = " + args[0]);
         }
-
-
+        String fName = inFile1.getName();
+        int pos = fName.lastIndexOf(".");
+        if (pos > 0) {
+            fName = fName.substring(0, pos);
+        }
 
         int low  = SecurityLevel.LOW;
         int high = SecurityLevel.HIGH;
 
         ReferenceMonitor rm = new ReferenceMonitor();
 
-        File notCovertFile = new File("notCovert.txt");
+        File notCovertFile = new File(fName.concat(".out"));
+        System.out.println("Output file name is = " + notCovertFile.getName());
         FileWriter fw1 = new FileWriter(notCovertFile);
         BufferedWriter bw1 = new BufferedWriter(fw1);
 
