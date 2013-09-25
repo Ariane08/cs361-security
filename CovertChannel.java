@@ -63,6 +63,7 @@ class SecureSubject {
     public int temp;
     public int level;
     String lowSubStr = "";
+    String instruction = "";
 
     public SecureSubject(String inName, int l) {
         name = inName;
@@ -71,48 +72,63 @@ class SecureSubject {
         level = l;
     }
 
-    public void HGenerateInstr(int parsedInt, ReferenceMonitor rm){
+    public void HGenerateInstr(int parsedInt, ReferenceMonitor rm, Writer fw1) throws IOException {
         if (parsedInt == 1){
             InstructionObject instrObj0 = new InstructionObject();
-            instrObj0.assignObjElements("RUN HAL");
+            instruction = "RUN HAL";
+            //try {
+                fw1.write(instruction, 0, instruction.length());
+            // }
+            // catch{
+            //     System.out.println("didn't write to a file!");
+            // }
+            instrObj0.assignObjElements(instruction);
             rm.monitorInstruction(instrObj0);
 
             InstructionObject instrObj1 = new InstructionObject();
-            instrObj1.assignObjElements("DESTROY HAL OBJ");
+            instruction = "DESTROY HAL OBJ";
+            instrObj1.assignObjElements(instruction);
             rm.monitorInstruction(instrObj1);
             System.out.println("Hal communicated a 1 over CovertChannel");
         }
         else{
             InstructionObject instrObj2 = new InstructionObject();
-            instrObj2.assignObjElements("RUN HAL");
+            instruction = "RUN HAL";
+            instrObj2.assignObjElements(instruction);
             rm.monitorInstruction(instrObj2);
 
             InstructionObject instrObj3 = new InstructionObject();
-            instrObj3.assignObjElements("CREATE HAL OBJ");
+            instruction = "CREATE HAL OBJ";
+            instrObj3.assignObjElements(instruction);
             rm.monitorInstruction(instrObj3);
             System.out.println("Hal communicated a 0 over CovertChannel");
         }
     }
 
-    public void LGenerateInstr(ReferenceMonitor rm){
+    public void LGenerateInstr (ReferenceMonitor rm, Writer fw1) throws IOException {
         InstructionObject instrObj0 = new InstructionObject();
-        instrObj0.assignObjElements("CREATE LYLE OBJ");
+        instruction = "CREATE LYLE OBJ";
+        instrObj0.assignObjElements(instruction);
         rm.monitorInstruction(instrObj0);
 
         InstructionObject instrObj1 = new InstructionObject();
-        instrObj1.assignObjElements("WRITE LYLE OBJ 1");
+        instruction = "WRITE LYLE OBJ 1";
+        instrObj1.assignObjElements(instruction);
         rm.monitorInstruction(instrObj1);
 
         InstructionObject instrObj2 = new InstructionObject();
-        instrObj2.assignObjElements("READ LYLE OBJ");
+        instruction = "READ LYLE OBJ";
+        instrObj2.assignObjElements(instruction);
         rm.monitorInstruction(instrObj2);
 
         InstructionObject instrObj3 = new InstructionObject();
-        instrObj3.assignObjElements("DESTROY LYLE OBJ");
+        instruction = "DESTROY LYLE OBJ";
+        instrObj3.assignObjElements(instruction);
         rm.monitorInstruction(instrObj3);
 
         InstructionObject instrObj4 = new InstructionObject();
-        instrObj4.assignObjElements("RUN LYLE");
+        instruction = "RUN LYLE";
+        instrObj4.assignObjElements(instruction);
         rm.monitorInstruction(instrObj4);
     }
 
@@ -312,6 +328,8 @@ class CovertChannel {
 
         FileInputStream fis = new FileInputStream(inFile1);
         Reader isr = new InputStreamReader(fis, "US-ASCII");
+        OutputStream outStr = new FileOutputStream("log.txt");
+        Writer fw1 = new OutputStreamWriter(outStr);
         int fileSize = (int)inFile1.length();
         int[] bitsToByte = new int[8];
         String writeString = "";
@@ -338,10 +356,10 @@ class CovertChannel {
                     parsedInt = Character.getNumericValue(bitsRead.charAt(i));
 
                     // sending bit by Hal kickoff
-                    hal.HGenerateInstr(parsedInt, rm);
+                    hal.HGenerateInstr(parsedInt, rm, fw1);
                     // call generator of instruction for Hal
                     // call generator of instruction for Lyle (always the same)
-                    lyle.LGenerateInstr(rm);
+                    lyle.LGenerateInstr(rm, fw1);
 
                     System.out.println("single parsed int = " + parsedInt + "\n====================");
                     bitsToByte[i] = parsedInt;
