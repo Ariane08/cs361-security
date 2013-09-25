@@ -87,7 +87,6 @@ class SecureSubject {
                 bw[0].write(instruction.concat("\n"));
             instrObj1.assignObjElements(instruction);
             rm.monitorInstruction(instrObj1);
-            //System.out.println("Hal communicated a 1 over CovertChannel");
         }
         else{
             InstructionObject instrObj2 = new InstructionObject();
@@ -103,7 +102,6 @@ class SecureSubject {
                 bw[0].write(instruction.concat("\n"));
             instrObj3.assignObjElements(instruction);
             rm.monitorInstruction(instrObj3);
-            //System.out.println("Hal communicated a 0 over CovertChannel");
         }
     }
 
@@ -146,14 +144,11 @@ class SecureSubject {
 
     public void readBits(int bit) throws IOException{
         lowSubStr = lowSubStr.concat(String.valueOf(bit));
-        //System.out.println("lowSubStr = " + lowSubStr);
         if (lowSubStr.length() == 8){
             byte numberByte = (byte) Integer.parseInt(lowSubStr, 2); // mode 2 = binary
             char charWrite = (char)numberByte;
-            //System.out.println("***************Char read = " + charWrite);
             lowSubStr = "";
             bwCovert.write(Character.toString(charWrite));
-            //System.out.println("Tried to write char to file " + Character.toString(charWrite) + "!!!!!!!!!!!!!!!!!!!");
         }
     }
 }
@@ -212,9 +207,7 @@ class ReferenceMonitor {
             else if (instrObj.type.equals("RUN")){
                 //check level of subject to run
                 SecureSubject sub = subjMap.get(instrObj.subjName);
-                //System.out.println("Subject level in run = " + sub.level);
                 if (sub.level == 1){
-                    //System.out.println("Lyle read " + sub.temp);
                     sub.readBits(sub.temp);
                 }
             }
@@ -235,7 +228,6 @@ class ReferenceMonitor {
         }
         else {
             subjMap.get(s).temp = 0;
-            //System.out.println("This instruction violates SSP");
         }
     } 
 
@@ -245,7 +237,6 @@ class ReferenceMonitor {
             objMan.write(objMan.objMap.get(o), v);
         }
         else {
-            //System.out.println("This instruction violates *-Property");
         }
     }    
 
@@ -269,7 +260,6 @@ class ReferenceMonitor {
             updateRM(o, s.level);
             //update objMap to map stringName to newSecureObject
             objMap.put(o, so);
-            //System.out.println(s.name +" created " + o + " with level " + getRM(s.name));
         }
         
         public void destroy(SecureSubject s, String o){
@@ -277,7 +267,6 @@ class ReferenceMonitor {
             rmMap.remove(o);
             //update objMap to not include destroyed object
             objMap.remove(o);
-            //System.out.println(s.name +" destroyed " + o);
         }
     }
 
@@ -316,10 +305,11 @@ class CovertChannel {
             BufferedWriter bw = new BufferedWriter(fw);
             bWarray[0] = bw;
         }
-        else{
+        else {
             inFile1 = new File(args[0]);
             System.out.println("\nargs[0] = " + args[0]);
         }
+
         String fName = inFile1.getName();
         int pos = fName.lastIndexOf(".");
         if (pos > 0) {
@@ -350,8 +340,6 @@ class CovertChannel {
         FileInputStream fis = new FileInputStream(inFile1);
         Reader isr = new InputStreamReader(fis, "US-ASCII");
 
-        
-
 
         String writeString = "";
         int initInt = 0;
@@ -370,11 +358,8 @@ class CovertChannel {
                 
                 for (int i = 0; i < bitsRead.length(); i++) {
                     parsedInt = Character.getNumericValue(bitsRead.charAt(i));
-                    //System.out.println("single parsed int = " + parsedInt);
                     hal.HGenerateInstr(parsedInt, rm, bWarray);
                     lyle.LGenerateInstr(rm, bWarray);
-
-                    //System.out.println("===================");
                     numBitsNotTransferred += 1;
                 }
             }
@@ -389,7 +374,6 @@ class CovertChannel {
 
         long timeFinish = System.currentTimeMillis();
         long timeElapsed = timeFinish - timeStart;
-        //System.out.print("Run Time in milliseconds = " + timeElapsed + "\n");
         double secondsElapsed = (timeFinish - timeStart) / 1000.0;
         System.out.print("Run Time in seconds = " + secondsElapsed + " seconds\n");
         System.out.print("total bits transferred = " + numBitsNotTransferred + " bits\n");
