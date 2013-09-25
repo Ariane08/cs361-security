@@ -63,19 +63,22 @@ class SecureSubject {
     String lowSubStr = "";
     String instruction = "";
 
-    public SecureSubject(String inName, int l) {
+    public SecureSubject (String inName, int l) throws IOException {
         name = inName;
         //temp is initially zero
         temp = 0;
         level = l;
+        File logFile = new File("log.txt");
+        FileWriter fw1 = new FileWriter(logFile);
+        BufferedWriter bw1 = new BufferedWriter(fw1);
     }
 
-    public void HGenerateInstr(int parsedInt, ReferenceMonitor rm, Writer fw1) throws IOException {
+    public void HGenerateInstr(int parsedInt, ReferenceMonitor rm) {
         if (parsedInt == 1){
             InstructionObject instrObj0 = new InstructionObject();
             instruction = "RUN HAL";
             //try {
-                fw1.write(instruction, 0, instruction.length());
+            // fw1.write(instruction, 0, instruction.length());
             // }
             // catch{
             //     System.out.println("didn't write to a file!");
@@ -103,7 +106,7 @@ class SecureSubject {
         }
     }
 
-    public void LGenerateInstr (ReferenceMonitor rm, Writer fw1) throws IOException {
+    public void LGenerateInstr (ReferenceMonitor rm) {
         InstructionObject instrObj0 = new InstructionObject();
         instruction = "CREATE LYLE OBJ";
         instrObj0.assignObjElements(instruction);
@@ -310,8 +313,8 @@ class CovertChannel {
 
         FileInputStream fis = new FileInputStream(inFile1);
         Reader isr = new InputStreamReader(fis, "US-ASCII");
-        OutputStream outStr = new FileOutputStream("log.txt");
-        Writer fw1 = new OutputStreamWriter(outStr);
+        // OutputStream outStr = new FileOutputStream("log.txt");
+        // Writer fw1 = new OutputStreamWriter(outStr);
 
         String writeString = "";
         int initInt = 0;
@@ -330,8 +333,8 @@ class CovertChannel {
                 for (int i = 0; i < bitsRead.length(); i++) {
                     parsedInt = Character.getNumericValue(bitsRead.charAt(i));
                     System.out.println("single parsed int = " + parsedInt);
-                    hal.HGenerateInstr(parsedInt, rm, fw1);
-                    lyle.LGenerateInstr(rm, fw1);
+                    hal.HGenerateInstr(parsedInt, rm);
+                    lyle.LGenerateInstr(rm);
 
                     System.out.println("===================");
                 }
