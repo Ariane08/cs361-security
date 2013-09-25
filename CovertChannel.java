@@ -62,12 +62,14 @@ class SecureSubject {
     public int level;
     String lowSubStr = "";
     String instruction = "";
+    BufferedWriter bwCovert;
 
-    public SecureSubject(String inName, int l) {
+    public SecureSubject(String inName, int l, BufferedWriter bw1) {
         name = inName;
         //temp is initially zero
         temp = 0;
         level = l;
+        bwCovert = bw1;
     }
 
     public void HGenerateInstr(int parsedInt, ReferenceMonitor rm, BufferedWriter bw) throws IOException {
@@ -133,7 +135,7 @@ class SecureSubject {
         rm.monitorInstruction(instrObj4);
     }
 
-    public void readBits(int bit){
+    public void readBits(int bit) throws IOException{
         lowSubStr = lowSubStr.concat(String.valueOf(bit));
         System.out.println("lowSubStr = " + lowSubStr);
         if (lowSubStr.length() == 8){
@@ -141,6 +143,8 @@ class SecureSubject {
             char charWrite = (char)numberByte;
             System.out.println("***************Char read = " + charWrite);
             lowSubStr = "";
+            bwCovert.write(Character.toString(charWrite));
+            System.out.println("Tried to write char to file " + Character.toString(charWrite) + "!!!!!!!!!!!!!!!!!!!");
         }
     }
 }
@@ -172,7 +176,7 @@ class ReferenceMonitor {
     }
 
     //=======================BLP
-    public static void monitorInstruction(InstructionObject instrObj) {
+    public static void monitorInstruction(InstructionObject instrObj) throws IOException {
         if (subjMap.containsKey(instrObj.subjName)){
             if (instrObj.type.equals("READ")){
                 //SSP
@@ -299,14 +303,17 @@ class CovertChannel {
 
         ReferenceMonitor rm = new ReferenceMonitor();
 
+        File notCovertFile = new File("notCovert.txt");
+        FileWriter fw1 = new FileWriter(notCovertFile);
+        BufferedWriter bw1 = new BufferedWriter(fw1);
 
         //====Make Securesubjects known the the secure system
         //Lyle
-        SecureSubject lyle = new SecureSubject("lyle", low);
+        SecureSubject lyle = new SecureSubject("lyle", low, bw1);
         rm.updateRM("lyle", low);
         rm.subjMap.put("lyle", lyle);
         //Hal
-        SecureSubject hal = new SecureSubject("hal", high);
+        SecureSubject hal = new SecureSubject("hal", high, bw1);
         rm.updateRM("hal", high);
         rm.subjMap.put("hal", hal);
 
@@ -317,6 +324,7 @@ class CovertChannel {
         File logFile = new File("log.txt");
         FileWriter fw = new FileWriter(logFile);
         BufferedWriter bw = new BufferedWriter(fw);
+
 
         String writeString = "";
         int initInt = 0;
@@ -344,6 +352,8 @@ class CovertChannel {
         }
         bw.flush();
         bw.close();
+        bw1.flush();
+        bw1.close();
         System.out.println("\nCovertChannel!\n");
 
     }
