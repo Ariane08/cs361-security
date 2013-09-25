@@ -307,7 +307,7 @@ class CovertChannel {
         long timeStart = System.currentTimeMillis();
 
         if (args[0].equals("v")){
-            System.out.println("\nargs[0] = " + args[0]);
+            System.out.println("\nargs[0] = " + args[0] + " = log.txt file created");
             inFile1 = new File(args[1]);
             System.out.println("args[1] = " + args[1]);
             vPresent = true;
