@@ -312,41 +312,29 @@ class CovertChannel {
         Reader isr = new InputStreamReader(fis, "US-ASCII");
         OutputStream outStr = new FileOutputStream("log.txt");
         Writer fw1 = new OutputStreamWriter(outStr);
-        int fileSize = (int)inFile1.length();
-        //int[] bitsToByte = new int[8];
+
         String writeString = "";
         int initInt = 0;
         String bitsRead = "";
         int parsedInt = 0;
         int result = 0;
-        //char charRead = 'a';
-        char charWrite = 'a';
+
         //while collects individual bytes from the input file
         while ((initInt = isr.read()) != -1) {
             byte b =(byte)initInt;
-            //charRead = (char)(initInt & 0xFF);
-            //System.out.print("initial char read from file = " + charRead + "\n");
-            //System.out.println("init char read as int = " + b);
+
             if (b != -1){
                 //bitsRead = string version of a byte from the input file 
                 bitsRead = String.format("%8s", Integer.toBinaryString(b)).replace(' ', '0');
-                //System.out.println("bits of byte read = " + bitsRead);
-                //***Parse the string of bits from the byte
-                //***Need to do this before communicating to LowSubject
+                
                 for (int i = 0; i < bitsRead.length(); i++) {
                     parsedInt = Character.getNumericValue(bitsRead.charAt(i));
                     System.out.println("single parsed int = " + parsedInt);
                     hal.HGenerateInstr(parsedInt, rm, fw1);
                     lyle.LGenerateInstr(rm, fw1);
 
-                    //bitsToByte[i] = parsedInt;
                     System.out.println("===================");
                 }
-    
-                // byte numberByte = (byte) Integer.parseInt(bitsRead, 2); // mode 2 = binary
-                // charWrite = (char)numberByte;
-                //System.out.print("byte coverted back to char after processing = " + charWrite + "\n");
-                //*System.out.println("numberByte should  equal num as int = " + numberByte);
             }
         }
 
