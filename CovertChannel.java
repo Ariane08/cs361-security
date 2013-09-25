@@ -74,26 +74,27 @@ class SecureSubject {
         if (parsedInt == 1){
             InstructionObject instrObj0 = new InstructionObject();
             instruction = "RUN HAL";
-            
             bw.write(instruction.concat("\n"));
-            
             instrObj0.assignObjElements(instruction);
             rm.monitorInstruction(instrObj0);
 
             InstructionObject instrObj1 = new InstructionObject();
             instruction = "DESTROY HAL OBJ";
-            instrObj1.assignObjElements(instruction.concat("\n"));
+            bw.write(instruction.concat("\n"));
+            instrObj1.assignObjElements(instruction);
             rm.monitorInstruction(instrObj1);
             System.out.println("Hal communicated a 1 over CovertChannel");
         }
         else{
             InstructionObject instrObj2 = new InstructionObject();
             instruction = "RUN HAL";
+            bw.write(instruction.concat("\n"));
             instrObj2.assignObjElements(instruction);
             rm.monitorInstruction(instrObj2);
 
             InstructionObject instrObj3 = new InstructionObject();
             instruction = "CREATE HAL OBJ";
+            bw.write(instruction.concat("\n"));
             instrObj3.assignObjElements(instruction);
             rm.monitorInstruction(instrObj3);
             System.out.println("Hal communicated a 0 over CovertChannel");
@@ -103,26 +104,31 @@ class SecureSubject {
     public void LGenerateInstr (ReferenceMonitor rm, BufferedWriter bw) throws IOException {
         InstructionObject instrObj0 = new InstructionObject();
         instruction = "CREATE LYLE OBJ";
+        bw.write(instruction.concat("\n"));
         instrObj0.assignObjElements(instruction);
         rm.monitorInstruction(instrObj0);
 
         InstructionObject instrObj1 = new InstructionObject();
         instruction = "WRITE LYLE OBJ 1";
+        bw.write(instruction.concat("\n"));
         instrObj1.assignObjElements(instruction);
         rm.monitorInstruction(instrObj1);
 
         InstructionObject instrObj2 = new InstructionObject();
         instruction = "READ LYLE OBJ";
+        bw.write(instruction.concat("\n"));
         instrObj2.assignObjElements(instruction);
         rm.monitorInstruction(instrObj2);
 
         InstructionObject instrObj3 = new InstructionObject();
         instruction = "DESTROY LYLE OBJ";
+        bw.write(instruction.concat("\n"));
         instrObj3.assignObjElements(instruction);
         rm.monitorInstruction(instrObj3);
 
         InstructionObject instrObj4 = new InstructionObject();
         instruction = "RUN LYLE";
+        bw.write(instruction.concat("\n"));
         instrObj4.assignObjElements(instruction);
         rm.monitorInstruction(instrObj4);
     }
