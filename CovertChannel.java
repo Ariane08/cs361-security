@@ -62,85 +62,98 @@ class SecureSubject {
     public int level;
     String lowSubStr = "";
     String instruction = "";
+    BufferedWriter bwCovert;
 
-    public SecureSubject (String inName, int l) throws IOException {
+    public SecureSubject(String inName, int l, BufferedWriter bw1) {
         name = inName;
         //temp is initially zero
         temp = 0;
         level = l;
-        File logFile = new File("log.txt");
-        FileWriter fw1 = new FileWriter(logFile);
-        BufferedWriter bw1 = new BufferedWriter(fw1);
+        bwCovert = bw1;
     }
 
-    public void HGenerateInstr(int parsedInt, ReferenceMonitor rm) {
+    public void HGenerateInstr(int parsedInt, ReferenceMonitor rm, BufferedWriter[] bw) throws IOException {
         if (parsedInt == 1){
             InstructionObject instrObj0 = new InstructionObject();
             instruction = "RUN HAL";
-            //try {
-            // fw1.write(instruction, 0, instruction.length());
-            // }
-            // catch{
-            //     System.out.println("didn't write to a file!");
-            // }
+            if (bw[0]!=null)
+                bw[0].write(instruction.concat("\n"));
             instrObj0.assignObjElements(instruction);
             rm.monitorInstruction(instrObj0);
 
             InstructionObject instrObj1 = new InstructionObject();
             instruction = "DESTROY HAL OBJ";
+            if (bw[0]!=null)
+                bw[0].write(instruction.concat("\n"));
             instrObj1.assignObjElements(instruction);
             rm.monitorInstruction(instrObj1);
-            System.out.println("Hal communicated a 1 over CovertChannel");
+            //System.out.println("Hal communicated a 1 over CovertChannel");
         }
         else{
             InstructionObject instrObj2 = new InstructionObject();
             instruction = "RUN HAL";
+            if (bw[0]!=null)
+                bw[0].write(instruction.concat("\n"));
             instrObj2.assignObjElements(instruction);
             rm.monitorInstruction(instrObj2);
 
             InstructionObject instrObj3 = new InstructionObject();
             instruction = "CREATE HAL OBJ";
+            if (bw[0]!=null)
+                bw[0].write(instruction.concat("\n"));
             instrObj3.assignObjElements(instruction);
             rm.monitorInstruction(instrObj3);
-            System.out.println("Hal communicated a 0 over CovertChannel");
+            //System.out.println("Hal communicated a 0 over CovertChannel");
         }
     }
 
-    public void LGenerateInstr (ReferenceMonitor rm) {
+    public void LGenerateInstr (ReferenceMonitor rm, BufferedWriter[] bw) throws IOException {
         InstructionObject instrObj0 = new InstructionObject();
         instruction = "CREATE LYLE OBJ";
+        if (bw[0]!=null)
+            bw[0].write(instruction.concat("\n"));
         instrObj0.assignObjElements(instruction);
         rm.monitorInstruction(instrObj0);
 
         InstructionObject instrObj1 = new InstructionObject();
         instruction = "WRITE LYLE OBJ 1";
+        if (bw[0]!=null)
+            bw[0].write(instruction.concat("\n"));
         instrObj1.assignObjElements(instruction);
         rm.monitorInstruction(instrObj1);
 
         InstructionObject instrObj2 = new InstructionObject();
         instruction = "READ LYLE OBJ";
+        if (bw[0]!=null)
+            bw[0].write(instruction.concat("\n"));
         instrObj2.assignObjElements(instruction);
         rm.monitorInstruction(instrObj2);
 
         InstructionObject instrObj3 = new InstructionObject();
         instruction = "DESTROY LYLE OBJ";
+        if (bw[0]!=null)
+            bw[0].write(instruction.concat("\n"));
         instrObj3.assignObjElements(instruction);
         rm.monitorInstruction(instrObj3);
 
         InstructionObject instrObj4 = new InstructionObject();
         instruction = "RUN LYLE";
+        if (bw[0]!=null)
+            bw[0].write(instruction.concat("\n"));
         instrObj4.assignObjElements(instruction);
         rm.monitorInstruction(instrObj4);
     }
 
-    public void readBits(int bit){
+    public void readBits(int bit) throws IOException{
         lowSubStr = lowSubStr.concat(String.valueOf(bit));
-        System.out.println("lowSubStr = " + lowSubStr);
+        //System.out.println("lowSubStr = " + lowSubStr);
         if (lowSubStr.length() == 8){
             byte numberByte = (byte) Integer.parseInt(lowSubStr, 2); // mode 2 = binary
             char charWrite = (char)numberByte;
-            System.out.println("***************Char read = " + charWrite);
+            //System.out.println("***************Char read = " + charWrite);
             lowSubStr = "";
+            bwCovert.write(Character.toString(charWrite));
+            //System.out.println("Tried to write char to file " + Character.toString(charWrite) + "!!!!!!!!!!!!!!!!!!!");
         }
     }
 }
@@ -172,7 +185,7 @@ class ReferenceMonitor {
     }
 
     //=======================BLP
-    public static void monitorInstruction(InstructionObject instrObj) {
+    public static void monitorInstruction(InstructionObject instrObj) throws IOException {
         if (subjMap.containsKey(instrObj.subjName)){
             if (instrObj.type.equals("READ")){
                 //SSP
@@ -201,7 +214,7 @@ class ReferenceMonitor {
                 SecureSubject sub = subjMap.get(instrObj.subjName);
                 //System.out.println("Subject level in run = " + sub.level);
                 if (sub.level == 1){
-                    System.out.println("Lyle read " + sub.temp);
+                    //System.out.println("Lyle read " + sub.temp);
                     sub.readBits(sub.temp);
                 }
             }
@@ -256,7 +269,7 @@ class ReferenceMonitor {
             updateRM(o, s.level);
             //update objMap to map stringName to newSecureObject
             objMap.put(o, so);
-            System.out.println(s.name +" created " + o + " with level " + getRM(s.name));
+            //System.out.println(s.name +" created " + o + " with level " + getRM(s.name));
         }
         
         public void destroy(SecureSubject s, String o){
@@ -264,7 +277,7 @@ class ReferenceMonitor {
             rmMap.remove(o);
             //update objMap to not include destroyed object
             objMap.remove(o);
-            System.out.println(s.name +" destroyed " + o);
+            //System.out.println(s.name +" destroyed " + o);
         }
     }
 
@@ -275,6 +288,9 @@ class CovertChannel {
 
     public static Integer currentSubjArrayIndex = 0;
     public static Integer currentObjArrayIndex = 0;
+    public static File inFile1;
+    public static boolean vPresent = false;
+    public static BufferedWriter[] bWarray = new BufferedWriter[1];
 
     public static void printState(SecureObject lobj, SecureObject hobj, SecureSubject lyle, SecureSubject hal){
         System.out.println("The current state is: ");
@@ -286,11 +302,21 @@ class CovertChannel {
 
 
     public static void main(String[] args) throws IOException{
-        File inFile1 = new File("instructionList.txt");
 
-        //if args[0] == "v"
-            //then args[1] is a filename
-        //else is a file name
+        if (args[0].equals("v")){
+            System.out.println("args[0] = " + args[0]);
+            inFile1 = new File(args[1]);
+            System.out.println("args[1] = " + args[1]);
+            vPresent = true;
+            File logFile = new File("log.txt");
+            FileWriter fw = new FileWriter(logFile);
+            BufferedWriter bw = new BufferedWriter(fw);
+            bWarray[0] = bw;
+        }
+        else{
+            inFile1 = new File(args[0]);
+            System.out.println("args[0] = " + args[0]);
+        }
 
 
 
@@ -299,22 +325,26 @@ class CovertChannel {
 
         ReferenceMonitor rm = new ReferenceMonitor();
 
+        File notCovertFile = new File("notCovert.txt");
+        FileWriter fw1 = new FileWriter(notCovertFile);
+        BufferedWriter bw1 = new BufferedWriter(fw1);
 
         //====Make Securesubjects known the the secure system
         //Lyle
-        SecureSubject lyle = new SecureSubject("lyle", low);
+        SecureSubject lyle = new SecureSubject("lyle", low, bw1);
         rm.updateRM("lyle", low);
         rm.subjMap.put("lyle", lyle);
         //Hal
-        SecureSubject hal = new SecureSubject("hal", high);
+        SecureSubject hal = new SecureSubject("hal", high, bw1);
         rm.updateRM("hal", high);
         rm.subjMap.put("hal", hal);
 
 
         FileInputStream fis = new FileInputStream(inFile1);
         Reader isr = new InputStreamReader(fis, "US-ASCII");
-        // OutputStream outStr = new FileOutputStream("log.txt");
-        // Writer fw1 = new OutputStreamWriter(outStr);
+
+        
+
 
         String writeString = "";
         int initInt = 0;
@@ -332,15 +362,20 @@ class CovertChannel {
                 
                 for (int i = 0; i < bitsRead.length(); i++) {
                     parsedInt = Character.getNumericValue(bitsRead.charAt(i));
-                    System.out.println("single parsed int = " + parsedInt);
-                    hal.HGenerateInstr(parsedInt, rm);
-                    lyle.LGenerateInstr(rm);
+                    //System.out.println("single parsed int = " + parsedInt);
+                    hal.HGenerateInstr(parsedInt, rm, bWarray);
+                    lyle.LGenerateInstr(rm, bWarray);
 
-                    System.out.println("===================");
+                    //System.out.println("===================");
                 }
             }
         }
-
+        if (vPresent){
+            bWarray[0].flush();
+            bWarray[0].close();
+        }
+        bw1.flush();
+        bw1.close();
         System.out.println("\nCovertChannel!\n");
 
     }
