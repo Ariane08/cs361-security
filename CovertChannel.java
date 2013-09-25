@@ -16,7 +16,6 @@ class InstructionObject {
 
         
         type = tokens[0].toUpperCase();
-        //System.out.println("InstructionObject type is received as = " + type);
         if (!type.equals("WRITE") && !type.equals("READ") && !type.equals("CREATE") && !type.equals("DESTROY") && !type.equals("RUN")){
             type = "BAD";
         }
@@ -33,7 +32,6 @@ class InstructionObject {
                 type = "BAD";
             }
         }
-        //System.out.println("InstructionObject type is output as = " + type);
 
     }
 }
@@ -165,7 +163,6 @@ class ReferenceMonitor {
     //RM map handling
     public static void updateRM(String s, Integer level) {
         rmMap.put(s, level);
-        //System.out.println("RM set " + s + " to level " + level);
     }
     public static Integer getRM(String s) {
         return (Integer)rmMap.get(s);
@@ -194,7 +191,6 @@ class ReferenceMonitor {
                 if (objMan.objMap.containsKey(instrObj.objName) && SecurityLevel.writeAccess(subjMap.get(instrObj.subjName).level, objMan.objMap.get(instrObj.objName).level)){
                     objMan.destroy(subjMap.get(instrObj.subjName), instrObj.objName);
                 }
-                //System.out.println("Curren state of objMap in DESTROY " + objMan.objMap.entrySet() + "\n");
                 //else = no-op
             }
             else if (instrObj.type.equals("RUN")){
@@ -205,7 +201,6 @@ class ReferenceMonitor {
                     System.out.println("Lyle read " + sub.temp);
                     sub.readBits(sub.temp);
                 }
-
             }
             else{
                 System.out.println("Bad instruction " + instrObj.type + " from " + instrObj.subjName);
@@ -219,29 +214,22 @@ class ReferenceMonitor {
 
     //READ = SSP
     public static void executeRead(String s, String o) {
-        //System.out.println("SSP get subj level as " + getRM(s) + " and object level as " + getRM(o));
-
         if (SecurityLevel.dominates(getRM(s).intValue(), getRM(o).intValue())){
-            //System.out.println("SSP allowed subj " + s +  " with level " + getRM(s) + " to read " + o +  " with level " + getRM(o) + "\n");
             objMan.read(subjMap.get(s), objMan.objMap.get(o));
-
         }
         else {
             subjMap.get(s).temp = 0;
-            System.out.println("This instruction violates SSP");
+            //System.out.println("This instruction violates SSP");
         }
     } 
 
     //WRITE = *-Property
     public static void starProperty(String s, String o, int v) {
-        //System.out.println("*-Property get subj level as " + getRM(s) + " and object level as " + getRM(o));
-
         if (SecurityLevel.writeAccess(getRM(s).intValue(), getRM(o).intValue())){
-            //System.out.println("*-Property allowed subj " + s +  " with level " + getRM(s) + " to write to " + o +  " with level " + getRM(o) + "\n");
             objMan.write(objMan.objMap.get(o), v);
         }
         else {
-            System.out.println("This instruction violates *-Property");
+            //System.out.println("This instruction violates *-Property");
         }
     }    
 
@@ -252,13 +240,11 @@ class ReferenceMonitor {
         //READ assign SecureSubject.TEMP new value
         public void read(SecureSubject s, SecureObject o){
             s.temp = o.currentValue;
-            //System.out.println(s.name +" read " + o.name + " as " + o.currentValue);
         }
 
         //WRITE assign SecureObject.currentValue new value
         public void write(SecureObject o, int value){
             o.currentValue = value;
-            //System.out.println(o.name +" was written as " + value);
         }
 
         public void create(SecureSubject s, String o){
@@ -268,17 +254,13 @@ class ReferenceMonitor {
             //update objMap to map stringName to newSecureObject
             objMap.put(o, so);
             System.out.println(s.name +" created " + o + " with level " + getRM(s.name));
-            System.out.println("Curren state of objMap " + objMap.entrySet() + "\n");
         }
         
         public void destroy(SecureSubject s, String o){
             //update rmMap to not include destroyed object
-            //System.out.println("Initial state of objMap before DESTROY of " + o + " = " + objMap.entrySet() + "\n");
             rmMap.remove(o);
             //update objMap to not include destroyed object
             objMap.remove(o);
-            //System.out.println("Curren state of objMap after DESTROY of " + o + " = " + objMap.entrySet() + "\n");
-
             System.out.println(s.name +" destroyed " + o);
         }
     }
@@ -331,19 +313,18 @@ class CovertChannel {
         OutputStream outStr = new FileOutputStream("log.txt");
         Writer fw1 = new OutputStreamWriter(outStr);
         int fileSize = (int)inFile1.length();
-        int[] bitsToByte = new int[8];
+        //int[] bitsToByte = new int[8];
         String writeString = "";
         int initInt = 0;
         String bitsRead = "";
         int parsedInt = 0;
         int result = 0;
-        char charRead = 'a';
+        //char charRead = 'a';
         char charWrite = 'a';
         //while collects individual bytes from the input file
         while ((initInt = isr.read()) != -1) {
-            //System.out.println("\n New byte read from file_________");
             byte b =(byte)initInt;
-            charRead = (char)(initInt & 0xFF);
+            //charRead = (char)(initInt & 0xFF);
             //System.out.print("initial char read from file = " + charRead + "\n");
             //System.out.println("init char read as int = " + b);
             if (b != -1){
@@ -354,15 +335,12 @@ class CovertChannel {
                 //***Need to do this before communicating to LowSubject
                 for (int i = 0; i < bitsRead.length(); i++) {
                     parsedInt = Character.getNumericValue(bitsRead.charAt(i));
-
-                    // sending bit by Hal kickoff
+                    System.out.println("single parsed int = " + parsedInt);
                     hal.HGenerateInstr(parsedInt, rm, fw1);
-                    // call generator of instruction for Hal
-                    // call generator of instruction for Lyle (always the same)
                     lyle.LGenerateInstr(rm, fw1);
 
-                    System.out.println("single parsed int = " + parsedInt + "\n====================");
-                    bitsToByte[i] = parsedInt;
+                    //bitsToByte[i] = parsedInt;
+                    System.out.println("===================");
                 }
     
                 // byte numberByte = (byte) Integer.parseInt(bitsRead, 2); // mode 2 = binary
