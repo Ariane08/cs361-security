@@ -303,8 +303,11 @@ class CovertChannel {
 
     public static void main(String[] args) throws IOException{
 
+        // returns the current time in milliseconds
+        long timeStart = System.currentTimeMillis();
+
         if (args[0].equals("v")){
-            System.out.println("args[0] = " + args[0]);
+            System.out.println("\nargs[0] = " + args[0]);
             inFile1 = new File(args[1]);
             System.out.println("args[1] = " + args[1]);
             vPresent = true;
@@ -315,7 +318,7 @@ class CovertChannel {
         }
         else{
             inFile1 = new File(args[0]);
-            System.out.println("args[0] = " + args[0]);
+            System.out.println("\nargs[0] = " + args[0]);
         }
         String fName = inFile1.getName();
         int pos = fName.lastIndexOf(".");
@@ -355,6 +358,7 @@ class CovertChannel {
         String bitsRead = "";
         int parsedInt = 0;
         int result = 0;
+        int numBitsNotTransferred = 0;
 
         //while collects individual bytes from the input file
         while ((initInt = isr.read()) != -1) {
@@ -371,6 +375,7 @@ class CovertChannel {
                     lyle.LGenerateInstr(rm, bWarray);
 
                     //System.out.println("===================");
+                    numBitsNotTransferred += 1;
                 }
             }
         }
@@ -382,5 +387,13 @@ class CovertChannel {
         bw1.close();
         System.out.println("\nCovertChannel!\n");
 
+        long timeFinish = System.currentTimeMillis();
+        long timeElapsed = timeFinish - timeStart;
+        //System.out.print("Run Time in milliseconds = " + timeElapsed + "\n");
+        double secondsElapsed = (timeFinish - timeStart) / 1000.0;
+        System.out.print("Run Time in seconds = " + secondsElapsed + " seconds\n");
+        System.out.print("total bits transferred = " + numBitsNotTransferred + " bits\n");
+        double bandwidth = numBitsNotTransferred / secondsElapsed;
+        System.out.print("Bandwidth = " + bandwidth + " bits/second\n\n");
     }
 }
