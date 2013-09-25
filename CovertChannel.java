@@ -70,22 +70,19 @@ class SecureSubject {
         level = l;
     }
 
-    public void HGenerateInstr(int parsedInt, ReferenceMonitor rm, Writer fw1) throws IOException {
+    public void HGenerateInstr(int parsedInt, ReferenceMonitor rm, BufferedWriter bw) throws IOException {
         if (parsedInt == 1){
             InstructionObject instrObj0 = new InstructionObject();
             instruction = "RUN HAL";
-            //try {
-                fw1.write(instruction, 0, instruction.length());
-            // }
-            // catch{
-            //     System.out.println("didn't write to a file!");
-            // }
+            
+            bw.write(instruction.concat("\n"));
+            
             instrObj0.assignObjElements(instruction);
             rm.monitorInstruction(instrObj0);
 
             InstructionObject instrObj1 = new InstructionObject();
             instruction = "DESTROY HAL OBJ";
-            instrObj1.assignObjElements(instruction);
+            instrObj1.assignObjElements(instruction.concat("\n"));
             rm.monitorInstruction(instrObj1);
             System.out.println("Hal communicated a 1 over CovertChannel");
         }
@@ -103,7 +100,7 @@ class SecureSubject {
         }
     }
 
-    public void LGenerateInstr (ReferenceMonitor rm, Writer fw1) throws IOException {
+    public void LGenerateInstr (ReferenceMonitor rm, BufferedWriter bw) throws IOException {
         InstructionObject instrObj0 = new InstructionObject();
         instruction = "CREATE LYLE OBJ";
         instrObj0.assignObjElements(instruction);
@@ -310,8 +307,10 @@ class CovertChannel {
 
         FileInputStream fis = new FileInputStream(inFile1);
         Reader isr = new InputStreamReader(fis, "US-ASCII");
-        OutputStream outStr = new FileOutputStream("log.txt");
-        Writer fw1 = new OutputStreamWriter(outStr);
+
+        File logFile = new File("log.txt");
+        FileWriter fw = new FileWriter(logFile);
+        BufferedWriter bw = new BufferedWriter(fw);
 
         String writeString = "";
         int initInt = 0;
@@ -330,14 +329,15 @@ class CovertChannel {
                 for (int i = 0; i < bitsRead.length(); i++) {
                     parsedInt = Character.getNumericValue(bitsRead.charAt(i));
                     System.out.println("single parsed int = " + parsedInt);
-                    hal.HGenerateInstr(parsedInt, rm, fw1);
-                    lyle.LGenerateInstr(rm, fw1);
+                    hal.HGenerateInstr(parsedInt, rm, bw);
+                    lyle.LGenerateInstr(rm, bw);
 
                     System.out.println("===================");
                 }
             }
         }
-
+        bw.flush();
+        bw.close();
         System.out.println("\nCovertChannel!\n");
 
     }
